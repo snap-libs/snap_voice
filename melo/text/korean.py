@@ -79,6 +79,27 @@ def g2p(norm_text):
     assert len(word2ph) == len(tokenized) + 2
     return phones, tones, word2ph
 
-def get_bert_feature(text, word2ph, device='cuda'):
+def get_bert_feature(text, word2ph, device='cpu'):
+    """Return Raw 768-dim BERT tensor exported directly from SNAP C++ SDK.
+    Zero PyTorch BERT model loading!
+    """
+    import numpy as np
+    import torch
+    
+    manager = SNAPEngineManager()
+    engine = manager.get_engine(lang="ko")
+    bert_tensor, snap_w2ph = engine.get_bert_features(text)
+    
+    if bert_tensor is not None:
+        # bert_tensor shape: [1, 768, seq_len] -> res: [seq_len, 768]
+        res = bert_tensor.squeeze(0).t().numpy()
+        phone_level_feature = []
+        for i in range(len(word2ph)):
+            repeat_feature = np.tile(res[i], (word2ph[i], 1))
+            phone_level_feature.append(repeat_feature)
+        phone_level_feature = np.concatenate(phone_level_feature, axis=0)
+        return torch.from_numpy(phone_level_feature.T).float().to(device)
+    
+    # Fallback if C-API is not present
     from . import japanese_bert
     return japanese_bert.get_bert_feature(text, word2ph, device=device, model_id=model_id)

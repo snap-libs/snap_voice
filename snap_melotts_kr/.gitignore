@@ -1,0 +1,33 @@
+# 1. Block everything by default in snap_melotts_kr (Strict Whitelist Mode)
+*
+*/
+
+# 2. Allow ONLY Python source files, configs and documentation
+!.gitignore
+!README.md
+!requirements.txt
+!LICENSE
+!infer_demo.py
+!snap_wrapper.py
+
+# 3. Allow Python source code inside melo/
+!melo/
+!melo/**
+
+# 4. Explicitly block heavy binaries, models, test scripts & cache
+bin/
+models/
+test_*
+debug_*
+temp_*
+*.dll
+*.so
+*.dylib
+*.onnx
+*.pth
+*.bin
+*.wav
+__pycache__/
+myvenv/
+venv/
+.venv/

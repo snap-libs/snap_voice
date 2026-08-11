@@ -6,13 +6,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
-from setup_env import setup_binaries, setup_weights
 from snap_wrapper import SNAPEngineManager
 from melo.api import TTS
 
 def main():
     parser = argparse.ArgumentParser(description="SNAP C++ SDK + Official MeloTTS End-to-End Audio Synthesis Demo")
-    parser.add_argument("--text", type=str, default="여기서 3번 버스를 타고 3번 갈아타야 해.", help="Input text to synthesize")
+    parser.add_argument("--text", type=str, default="여기서 3번버스를 타고 3번 갈아타야합니다", help="Input text to synthesize")
     parser.add_argument("--lang", type=str, default="KR", help="Language code (KR, EN, JP)")
     parser.add_argument("--output", type=str, default="output_snap_melo.wav", help="Output audio file path")
     parser.add_argument("--speaker_id", type=int, default=0, help="Speaker ID")
@@ -26,10 +25,8 @@ def main():
     print(f"Output File: {args.output}")
     print("--------------------------------------------------")
 
-    # 1. Environment & Weights Setup
-    print("[Step 1] Initializing SNAP C++ binaries & model weights...")
-    setup_binaries()
-    setup_weights("ko")
+    # 1. SNAP C++ Engine & MeloTTS Initialization
+    print("[Step 1] Initializing SNAP C++ Engine & MeloTTS...")
 
     # 2. Test SNAP C++ SDK Text Normalization, G2P & Raw BERT Tensor Export
     print("\n[Step 2] Testing SNAP C++ Engine (snap_process & snap_get_bert_features)...")

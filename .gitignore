@@ -1,0 +1,35 @@
+# 1. Block everything by default (Strict Whitelist Mode)
+*
+*/
+
+# 2. Explicitly Whitelist Root Configuration & Core Release Files
+!.gitignore
+!README.md
+!requirements.txt
+!LICENSE
+!infer_demo.py
+!snap_wrapper.py
+!eval_frontend_comparison.py
+!benchmark_results.json
+
+# 3. Explicitly Whitelist Core Engine Directories
+!melo/
+!melo/**
+!snap_melotts_kr/
+!snap_melotts_kr/**
+
+# 4. Explicitly block temporary tests, binaries, cache & audio files
+test_*
+debug_*
+temp_*
+*.dll
+*.so
+*.dylib
+*.onnx
+*.pth
+*.bin
+*.wav
+__pycache__/
+myvenv/
+venv/
+.venv/

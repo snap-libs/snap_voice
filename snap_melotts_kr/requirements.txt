@@ -1,0 +1,13 @@
+# Pure dependencies for snap_melotts
+torch
+torchaudio
+transformers
+librosa
+soundfile
+numpy
+scipy
+requests
+tqdm
+anyascii
+num2words
+jamo
