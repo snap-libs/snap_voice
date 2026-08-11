@@ -51,8 +51,8 @@ python infer_demo.py --text "여기서 3번버스를 타고 3번 갈아타야합
 * 파이썬 런타임에서 **400MB 상당의 PyTorch BERT 모델(`kykim/bert-kor-base`) 다운로드 및 가동 로직을 100% 제거**하였습니다.
 * SNAP C++ SDK 내부의 단 1개 INT8 ONNX BERT 세션에서 추출된 **Raw 768차원 BERT hidden state 텐서**를 C-API로 직출력받아 MeloTTS 백엔드(`SynthesizerTrn`)로 100% 재사용(Reuse)합니다.
 
-### 2. 수사 문맥 정밀 구분 (Sino vs Native 98% 교정)
-* C++ INT8 ONNX 런타임을 통해 문맥 분석을 수행하여 `"3번 버스"`(삼번) vs `"3번 갈아타"`(세번), `"1층"`(일층) vs `"1개"`(한개) 등 원본 MeloTTS 대비 **100개 문장 벤치마크 98% 정밀도 우위 및 교정**을 달성했습니다.
+### 2. 수사 문맥 정밀 구분 (Sino vs Native 교정)
+* C++ INT8 ONNX 런타임을 통해 문맥 분석을 수행하여 `"3번 버스"`(삼번) vs `"3번 갈아타"`(세번), `"1층"`(일층) vs `"1개"`(한개) 등 원본 MeloTTS 대비 고도화된 정밀 문맥 처리를 달성했습니다.
 
 ### 3. C-ABI 상호 호환성 & In-Memory JSON 동적 옵션
 * 디스크 I/O 0% 및 C-ABI 파괴 0%의 인메모리 JSON C-API (`snap_process_json_opts`)를 지원하여, 문장(Per-Sentence) 단위로 정적 설정을 실시간 덮어쓰기(Override)할 수 있습니다.
@@ -69,8 +69,6 @@ snap_melotts/
  ├── README.md                     # 메인 안내 문서
  └── snap_melotts_kr/              # 🇰🇷 [한국어 전용 패키지 서브모듈]
       ├── melo/                    # 한국어 전용 슬림 백엔드
-      ├── bin/                     # C++ INT8 SDK 바이너리 (snap_cpp.dll)
-      ├── models/ko/               # 한국어 ONNX 모델 가중치 및 사전
       ├── snap_wrapper.py          # C-API ctypes 바인딩
       ├── infer_demo.py            # 한국어 전용 1-Click 실행 데모
       └── README.md                # 한국어 서브모듈 가이드
