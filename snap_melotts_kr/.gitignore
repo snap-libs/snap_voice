@@ -14,9 +14,12 @@
 !melo/
 !melo/**
 
-# 4. Explicitly block heavy binaries, models, test scripts & cache
-bin/
-models/
+# 4. Explicitly block unnecessary examples, training scripts, tests, binaries, cache & audio
+data/
+train.*
+app.py
+*.ipynb
+example_*
 test_*
 debug_*
 temp_*

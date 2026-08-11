@@ -18,7 +18,12 @@
 !snap_melotts_kr/
 !snap_melotts_kr/**
 
-# 4. Explicitly block temporary tests, binaries, cache & audio files
+# 4. Explicitly block unnecessary examples, training scripts, tests, binaries, cache & audio
+data/
+train.*
+app.py
+*.ipynb
+example_*
 test_*
 debug_*
 temp_*
