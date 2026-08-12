@@ -44,7 +44,7 @@ def text_normalize(text: str) -> str:
     # Parse JSON output from SNAP C++ Engine
     try:
         data = json.loads(raw_res)
-        return data.get("normalized_text", text)
+        return data.get("phonology") or data.get("normalized_text") or text
     except Exception:
         return raw_res
 
