@@ -9,6 +9,7 @@
 !LICENSE
 !infer_demo.py
 !snap_wrapper.py
+!app.py
 
 # 3. Explicitly Whitelist Core Engine Directories & Documentation
 !melo/
@@ -25,7 +26,6 @@ eval_*
 benchmark*
 data/
 train.*
-app.py
 *.ipynb
 example_*
 test_*

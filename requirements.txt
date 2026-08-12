@@ -13,3 +13,5 @@ num2words
 jamo
 cached_path
 huggingface_hub
+gradio
+spaces
