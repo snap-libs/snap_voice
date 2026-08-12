@@ -1,8 +1,8 @@
-# 1. Block everything by default (Strict Whitelist Mode)
+# 1. Block everything by default (Strict Whitelist Mode for Public Release)
 *
 */
 
-# 2. Explicitly Whitelist Root Configuration & Core Release Files
+# 2. Root Configuration & Documentation Files
 !.gitignore
 !README.md
 !requirements.txt
@@ -11,31 +11,29 @@
 !snap_wrapper.py
 !app.py
 
-# 3. Explicitly Whitelist Core Engine Directories & Documentation
+# 3. Whitelisted Core Source Directories
 !melo/
 !melo/**
 !snap_melotts_kr/
 !snap_melotts_kr/**
 !docs/
 !docs/**
-!bin/
-!bin/**
 
-# 4. Explicitly block unnecessary benchmark files, examples, training scripts, tests, binaries, cache & audio
-eval_*
-benchmark*
-data/
-train.*
-*.ipynb
-example_*
-test_*
-debug_*
-temp_*
-*.dylib
-*.onnx
-*.pth
-*.wav
-__pycache__/
+# 4. Explicitly Block Runtime Binaries, Generated Audios, Models & Cache inside Whitelisted Directories
+bin/
+snap_melotts_kr/bin/
+weights/
+models/
+snap_cpp_temp/
 myvenv/
 venv/
 .venv/
+__pycache__/
+*.pyc
+*.wav
+*.onnx
+*.pth
+*.dylib
+*.dll
+*.so
+*.lib
