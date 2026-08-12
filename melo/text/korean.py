@@ -11,14 +11,29 @@ from snap_wrapper import SNAPEngineManager
 model_id = 'kykim/bert-kor-base'
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 
+DOUBLE_JONG_MAP = {
+    'ᆪ': 'ㄱ',
+    'ᆬ': 'ㄴ',
+    'ᆭ': 'ㄴ',
+    'ᆰ': 'ㄹ',
+    'ᆱ': 'ㄹ',
+    'ᆲ': 'ㄹ',
+    'ᆳ': 'ㄹ',
+    'ᆴ': 'ㄹ',
+    'ᆵ': 'ㄹ',
+    'ᆶ': 'ㄹ',
+    'ᆹ': 'ㅂ',
+}
+
 def korean_text_to_phonemes(text, character: str = "hangeul") -> str:
     if character == "english":
         from anyascii import anyascii
         text = anyascii(text)
         return text
 
-    text = list(hangul_to_jamo(text))
-    return "".join(text)
+    jamo_list = list(hangul_to_jamo(text))
+    sanitized = [DOUBLE_JONG_MAP.get(j, j) for j in jamo_list]
+    return "".join(sanitized)
 
 def text_normalize(text: str) -> str:
     """Run SNAP C++ Engine for context-aware Text Normalization & G2P."""
