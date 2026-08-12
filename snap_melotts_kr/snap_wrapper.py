@@ -17,29 +17,16 @@ class SNAPEngine:
         # Set SNAP_HOME anchor environment variable
         os.environ["SNAP_HOME"] = self.snap_root
         
-        # Explicitly resolve C++ shared library path based on OS (Windows or Linux)
+        # Explicitly resolve C++ shared library path strictly from snap_root/bin/ based on OS
         if not dll_path:
-            os_folder = "windows" if os.name == 'nt' else "linux"
             lib_name = "snap_cpp.dll" if os.name == 'nt' else "libsnap_cpp.so"
-            
-            # Search candidate paths relative to snap_root
-            candidates = [
-                os.path.join(self.snap_root, "lib", os_folder, "x64", "v1.0.0", lib_name),
-                os.path.join(self.snap_root, "bin", lib_name),
-                os.path.join(self.snap_root, "lib", lib_name)
-            ]
-            
-            dll_path = candidates[-1] # default fallback
-            for path in candidates:
-                if os.path.exists(path):
-                    dll_path = path
-                    break
+            dll_path = os.path.join(self.snap_root, "bin", lib_name)
             
         self.dll_path = os.path.abspath(dll_path)
         if not os.path.exists(self.dll_path):
             raise FileNotFoundError(
                 f"SNAP C++ SDK library not found at: {self.dll_path}\n"
-                f"Please ensure the C++ shared library exists at '{self.snap_root}/lib/{os_folder}/x64/v1.0.0/{lib_name}' or '{self.snap_root}/bin/'."
+                f"Please ensure the C++ shared library has been installed to '{self.snap_root}/bin/' during setup."
             )
             
         # Add DLL directory to Windows DLL search path
