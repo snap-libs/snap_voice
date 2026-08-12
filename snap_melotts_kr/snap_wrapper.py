@@ -29,13 +29,22 @@ class SNAPEngine:
                 f"Please ensure the C++ shared library has been installed to '{self.snap_root}/bin/' during setup."
             )
             
-        # Add DLL directory to Windows DLL search path
+        # Add DLL directory to Windows DLL search path or preload dependencies on Linux
         dll_dir = os.path.dirname(self.dll_path)
         if hasattr(os, 'add_dll_directory') and os.name == 'nt':
             try:
                 os.add_dll_directory(dll_dir)
             except Exception:
                 pass
+        elif os.name != 'nt':
+            # Preload onnxruntime shared library on Linux/macOS to resolve dynamic dependencies
+            for onnx_name in ["libonnxruntime.so", "libonnxruntime.so.1.18.1"]:
+                onnx_path = os.path.join(dll_dir, onnx_name)
+                if os.path.exists(onnx_path):
+                    try:
+                        ctypes.CDLL(onnx_path, mode=ctypes.RTLD_GLOBAL)
+                    except Exception:
+                        pass
                 
         # Load C++ shared library
         self._lib = ctypes.CDLL(self.dll_path)
