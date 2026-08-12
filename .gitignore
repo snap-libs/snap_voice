@@ -10,11 +10,13 @@
 !infer_demo.py
 !snap_wrapper.py
 
-# 3. Explicitly Whitelist Core Engine Directories
+# 3. Explicitly Whitelist Core Engine Directories & Documentation
 !melo/
 !melo/**
 !snap_melotts_kr/
 !snap_melotts_kr/**
+!docs/
+!docs/**
 
 # 4. Explicitly block unnecessary benchmark files, examples, training scripts, tests, binaries, cache & audio
 eval_*
