@@ -17,14 +17,9 @@ class SNAPEngine:
         # Set SNAP_HOME anchor environment variable
         os.environ["SNAP_HOME"] = self.snap_root
         
-        # Explicitly resolve C++ shared library path from snap_root/bin based on OS
+        # Explicitly resolve C++ shared library path from snap_root/bin based on OS (Windows or Linux)
         if not dll_path:
-            if os.name == 'nt':
-                lib_name = "snap_cpp.dll"
-            elif sys.platform.startswith('darwin'):
-                lib_name = "libsnap_cpp.dylib"
-            else:
-                lib_name = "libsnap_cpp.so"
+            lib_name = "snap_cpp.dll" if os.name == 'nt' else "libsnap_cpp.so"
             dll_path = os.path.join(self.snap_root, "bin", lib_name)
             
         self.dll_path = os.path.abspath(dll_path)
