@@ -1,25 +1,47 @@
-# SNAP C++ SDK & MeloTTS Integration (`snap_melotts`)
+# SNAP Voice (`snap_voice`)
 
-This repository provides an integration of the **SNAP C++ SDK (`snap_cpp`)** with the **MeloTTS** backend using public C-API interfaces.
+**`snap_voice`** 프로젝트는 [**SNAP Frontend for TTS (`snap_cpp`)**](https://github.com/snap-libs/snap_cpp)를 다양한 백엔드 TTS(Text-to-Speech) 엔진들과 연동하여 고품질의 음성 합성을 제공하는 것을 목적으로 합니다.
+
+그 첫 번째 결실로 **MeloTTS** 백엔드와 SNAP Frontend를 결합하여 크게 향상된 품질의 음성 합성을 구현했습니다. MeloTTS는 다국어를 지원하며 SNAP 엔진 또한 한국어, 일본어, 영어를 지원하지만, 우선 첫 번째 단계로 **한국어 연동 모듈 (`snap_melotts_kr`)**을 구성하여 우선 배포합니다. 나머지 언어 지원 및 기타 백엔드 TTS 연동은 추후 순차적으로 진행할 예정입니다.
 
 ---
 
-## 1. Quick Start: Korean Module (`snap_melotts_kr`)
+## 1. Quick Start: SNAP+MeloTTS 통합 한국어 버전 설치 안내
 
-Follow these steps to initialize resources and run audio synthesis:
-
+### Linux
 ```bash
-# 1. Clone repository and enter Korean submodule directory
-git clone https://github.com/snap-libs/snap_melotts.git
-cd snap_melotts/snap_melotts_kr
+# 1. 저장소 클론 및 한국어 모듈 이동
+git clone https://github.com/snap-libs/snap_voice.git
+cd snap_voice/snap_melotts_kr
 
-# 2. Install Python dependencies
+# 2. 파이썬 의존성 패키지 설치
 pip install -r requirements.txt
 
-# 3. Initialize SNAP C++ model resources and backend weights (SNAP_HOME=.)
-snap init . --lang ko
+# 3. C++ 라이브러리 및 모델 자원 세팅
+git clone --depth 1 https://github.com/snap-libs/snap_cpp.git ../snap_cpp
+mkdir -p bin && cp -r ../snap_cpp/lib/linux/x64/v1.0.0/* ./bin/
+../snap_cpp/scripts/snap_init.sh -y
 
-# 4. Run audio synthesis demo
+# 4. 음성 합성 데모 실행
+python infer_demo.py --text "여기서 3번버스를 타고 3번 갈아타야합니다" --output output_kr.wav
+```
+
+### Windows (PowerShell)
+```powershell
+# 1. 저장소 클론 및 한국어 모듈 이동
+git clone https://github.com/snap-libs/snap_voice.git
+cd snap_voice/snap_melotts_kr
+
+# 2. 파이썬 의존성 패키지 설치
+pip install -r requirements.txt
+
+# 3. C++ 라이브러리 및 모델 자원 세팅
+git clone --depth 1 https://github.com/snap-libs/snap_cpp.git ../snap_cpp
+New-Item -ItemType Directory -Force bin
+Copy-Item ../snap_cpp/lib/windows/x64/v1.0.0/* bin/ -Recurse -Force
+powershell -ExecutionPolicy Bypass -File ..\snap_cpp\scripts\snap_init.ps1 -Yes
+
+# 4. 음성 합성 데모 실행
 python infer_demo.py --text "여기서 3번버스를 타고 3번 갈아타야합니다" --output output_kr.wav
 ```
 
@@ -41,7 +63,7 @@ python infer_demo.py --text "여기서 3번버스를 타고 3번 갈아타야합
 ## 3. Directory Layout
 
 ```text
-snap_melotts/
+snap_voice/
  ├── melo/                         # MeloTTS backend core source
  ├── snap_wrapper.py               # SNAP C++ SDK ctypes C-API bindings
  ├── infer_demo.py                 # End-to-end inference demo script
@@ -49,8 +71,7 @@ snap_melotts/
  └── snap_melotts_kr/              # Korean deployment submodule
       ├── melo/                    # Korean backend source
       ├── snap_wrapper.py          # C-API ctypes bindings
-      ├── infer_demo.py            # Korean inference demo script
-      └── README.md                # Submodule documentation
+      └── infer_demo.py            # Korean inference demo script
 ```
 
 ---

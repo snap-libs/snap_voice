@@ -17,6 +17,8 @@
 !snap_melotts_kr/**
 !docs/
 !docs/**
+!bin/
+!bin/**
 
 # 4. Explicitly block unnecessary benchmark files, examples, training scripts, tests, binaries, cache & audio
 eval_*
@@ -29,12 +31,9 @@ example_*
 test_*
 debug_*
 temp_*
-*.dll
-*.so
 *.dylib
 *.onnx
 *.pth
-*.bin
 *.wav
 __pycache__/
 myvenv/

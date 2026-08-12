@@ -1,4 +1,4 @@
-# Pure dependencies for snap_melotts
+# Pure dependencies for snap_voice
 torch
 torchaudio
 transformers
@@ -11,3 +11,5 @@ tqdm
 anyascii
 num2words
 jamo
+cached_path
+huggingface_hub
