@@ -16,7 +16,7 @@ MeloTTS는 다국어를 지원하고 SNAP 역시 3개국어(한국어, 일본어
 
 SNAP을 MeloTTS 엔진에 밀접하게 통합(Tightly Coupled Integration)하기 위해 소스코드 레벨에서 2가지 핵심 영역을 수정하였다.
 
-![SNAP + MeloTTS Integration Architecture](images/architecture_kr.svg)
+![SNAP + MeloTTS Integration Architecture](images/architecture_kr_v2.svg)
 
 ### 2.1. 전처리 파이프라인 교체 및 불필요 전처리 라이브러리 제거
 * **기존 방식**: MeloTTS 내부의 legacy 전처리 방식(Python regex 기반 텍스트 정리, `num2words`, KakaoBrain `g2pkk` 등)은 별도의 전처리 라이브러리 의존성이 존재하였으며, PyTorch FP32 BERT 모델(`kykim/bert-kor-base`, 약 420MB)을 런타임에 직접 로딩하여 연산하는 구조였다.

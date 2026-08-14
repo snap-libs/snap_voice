@@ -16,7 +16,7 @@ While MeloTTS supports multi-lingual synthesis and SNAP natively incorporates a 
 
 To achieve tightly coupled integration between SNAP and the MeloTTS engine, two core components of the codebase were modified.
 
-![SNAP + MeloTTS Integration Architecture](images/architecture_en.svg)
+![SNAP + MeloTTS Integration Architecture](images/architecture_en_v2.svg)
 
 ### 2.1. Frontend Replacement & Removal of Legacy Dependencies
 * **Legacy Approach**: MeloTTS originally relied on Python regex-based text cleaning, external libraries (`num2words`, KakaoBrain `g2pkk`), and loaded a PyTorch FP32 BERT model (`kykim/bert-kor-base`, ~420 MB) dynamically at runtime.
