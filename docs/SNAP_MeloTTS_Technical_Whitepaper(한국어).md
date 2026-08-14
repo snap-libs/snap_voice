@@ -19,16 +19,16 @@ SNAP을 MeloTTS 엔진에 밀접하게 통합(Tightly Coupled Integration)하기
 ```mermaid
 flowchart TD
     subgraph Legacy ["Legacy MeloTTS Pipeline"]
-        L_Input[입력 텍스트] --> L_Pre[Python 전처리: num2words + g2pkk]
-        L_Pre --> L_Bert[PyTorch FP32 BERT 모델 로딩 및 연산]
-        L_Bert --> L_TTS[MeloTTS Acoustic Model (PyTorch VITS)]
+        L_Input["입력 텍스트"] --> L_Pre["Python 전처리: num2words + g2pkk"]
+        L_Pre --> L_Bert["PyTorch FP32 BERT 모델 로딩 및 연산"]
+        L_Bert --> L_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
     end
 
     subgraph Integrated ["SNAP + MeloTTS Integrated Pipeline"]
-        I_Input[입력 텍스트] --> I_SNAP[SNAP C++ Engine & INT8 ONNX BERT]
-        I_SNAP -->|1. g2pkk / num2words 전처리 제거| I_Clean[정규화 & G2P 텍스트]
-        I_SNAP -->|2. C-API Precomputed Shared BERT Tensor| I_Cache[Precomputed BERT Feature Tensor]
-        I_Clean --> I_TTS[MeloTTS Acoustic Model (PyTorch VITS)]
+        I_Input["입력 텍스트"] --> I_SNAP["SNAP C++ Engine & INT8 ONNX BERT"]
+        I_SNAP -->|1. g2pkk / num2words 전처리 제거| I_Clean["정규화 & G2P 텍스트"]
+        I_SNAP -->|2. C-API Precomputed Shared BERT Tensor| I_Cache["Precomputed BERT Feature Tensor"]
+        I_Clean --> I_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
         I_Cache --> I_TTS
     end
 ```
@@ -39,7 +39,7 @@ flowchart TD
 
 ### 2.2. BERT 연산 통합 및 사전 계산 텐서 전달 구조 개편
 * **기존 방식**: 기존 MeloTTS는 음향 모델(Acoustic Model) 추론 구동 시 백엔드 내부에서 PyTorch FP32 BERT 계산을 수행하는 구조였다.
-* **통합 개편**: 개편된 파이프라인에서는 전처리 단계에서 SNAP C-API (`snap_get_bert_features`)를 통해 BERT 계산을 미리 수행(Precompute)하고 그 텐서 결과값을 메모리 상에서 공유하여, 음향 모델 구동 시에는 사전 계산된 텐서를 직접 전달받아 활용하는 구조로 개편하였다.
+* **통합 개편**: 개편된 파이프라인에서는 전처리 단계에서 SNAP C-API (`snap_get_bert_features`)를 통해 BERT 계산을 미리 수행(Precompute)하고 그 텐서 결과값을 메모리 상에서 공유하여, 음향 모델 구동 시에는 사전 계산된 텐서를 직접 전달받아 활용하는 구조로 개편하였다. 특히 C++ BERT 엔진과 동일한 WordPiece 토크나이저(`KO_tokenizer.json`)를 연동하여 서브워드 토큰 스트림과 자모 음소 간 1:1 오프셋 매핑(`len(word2ph) == bert_seq_len`)을 엄격히 동기화함으로써, C++ Native ONNX BERT 특징과 VITS2 음향 모델 간의 정렬 왜곡을 완벽히 방지하였다.
 
 ---
 
@@ -208,8 +208,8 @@ TTS 음향 모델 입력 직전, FP32 PyTorch BERT와 INT8 ONNX SNAP BERT가 생
 
 ## 6. 한계점 및 향후 과제 (Limitations & Future Work)
 
-1. **한국어(KO) 파이프라인 단일 통합 한계**: 현재 통합 파이프라인은 한국어 전처리 및 INT8 ONNX BERT 엔진에 국한하여 반영되었으며, MeloTTS가 지원하는 일본어(JA) 및 영어(EN) 파이프라인은 순차적 확장 통합을 진행할 예정이다.
-2. **사전 미등록어(OOV) 보완 및 규칙 정교화**: 4.2절 고난도 표본 평가의 `g2pkk` 2.7% 우위 케이스 분석 결과를 바탕으로 SNAP C++ 엔진의 고유명사 사전을 지속 보완하고 조사 '의' 구음 및 경화음 규칙 표기를 정밀 교정할 계획이다.
+1. **한국어 파이프라인 완성도 및 다화자 체크포인트 확장**: 현재 한국어(KO) 파이프라인은 전처리 정규화, 음운 규칙, 1:1 BERT 정렬 및 INT8 양자화 전반에서 매우 높은 완성도를 확보하였다. 향후 다양한 음색과 보이스 프로필을 제공하기 위한 한국어 다화자(Multi-speaker) 체크포인트 확장을 추진할 예정이다.
+2. **다국어(일본어/영어) 파이프라인 순차 확장**: MeloTTS가 지원하는 일본어(JA) 및 영어(EN) 파이프라인에 대해서도 SNAP C++ 엔진의 텍스트 전처리 및 Native BERT 통합을 단계적으로 적용해 나갈 계획이다.
 
 ---
 

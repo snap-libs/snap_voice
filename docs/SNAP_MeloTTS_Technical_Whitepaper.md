@@ -19,16 +19,16 @@ To achieve tightly coupled integration between SNAP and the MeloTTS engine, two 
 ```mermaid
 flowchart TD
     subgraph Legacy ["Legacy MeloTTS Pipeline"]
-        L_Input[Input Text] --> L_Pre[Python Preprocessing: num2words + g2pkk]
-        L_Pre --> L_Bert[PyTorch FP32 BERT Loading & Inference]
-        L_Bert --> L_TTS[MeloTTS Acoustic Model (PyTorch VITS)]
+        L_Input["Input Text"] --> L_Pre["Python Preprocessing: num2words + g2pkk"]
+        L_Pre --> L_Bert["PyTorch FP32 BERT Loading & Inference"]
+        L_Bert --> L_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
     end
 
     subgraph Integrated ["SNAP + MeloTTS Integrated Pipeline"]
-        I_Input[Input Text] --> I_SNAP[SNAP C++ Engine & INT8 ONNX BERT]
-        I_SNAP -->|1. Remove g2pkk / num2words| I_Clean[Normalized & G2P Text]
-        I_SNAP -->|2. C-API Precomputed Shared BERT Tensor| I_Cache[Precomputed BERT Feature Tensor]
-        I_Clean --> I_TTS[MeloTTS Acoustic Model (PyTorch VITS)]
+        I_Input["Input Text"] --> I_SNAP["SNAP C++ Engine & INT8 ONNX BERT"]
+        I_SNAP -->|1. Remove g2pkk / num2words| I_Clean["Normalized & G2P Text"]
+        I_SNAP -->|2. C-API Precomputed Shared BERT Tensor| I_Cache["Precomputed BERT Feature Tensor"]
+        I_Clean --> I_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
         I_Cache --> I_TTS
     end
 ```
@@ -39,7 +39,7 @@ flowchart TD
 
 ### 2.2. BERT Feature Integration & Precomputed Shared Tensor Pipeline
 * **Legacy Approach**: The original pipeline performed PyTorch FP32 BERT inference sequentially inside the backend acoustic model execution step.
-* **Integrated Approach**: The integrated pipeline precomputes BERT embeddings during the frontend normalization step via the SNAP C-API (`snap_get_bert_features`). The resulting feature tensor is stored in shared memory and passed directly to the acoustic synthesizer, bypassing backend BERT re-computation.
+* **Integrated Approach**: The integrated pipeline precomputes BERT embeddings during the frontend normalization step via the SNAP C-API (`snap_get_bert_features`). The resulting feature tensor is stored in shared memory and passed directly to the acoustic synthesizer, bypassing backend BERT re-computation. Furthermore, by binding directly to the identical WordPiece tokenizer (`KO_tokenizer.json`) utilized by the C++ BERT engine, the pipeline establishes a strict 1:1 token-to-phoneme span mapping contract (`len(word2ph) == bert_seq_len`), completely eliminating alignment distortion between C++ native ONNX BERT features and the VITS2 acoustic model.
 
 ---
 
@@ -208,8 +208,8 @@ Direct metric comparisons of 768-dimensional embedding vectors and synthesized a
 
 ## 6. Limitations & Future Work
 
-1. **Korean (KO) Pipeline Focus**: The current integration covers the Korean text frontend and INT8 ONNX BERT model. Japanese (JA) and English (EN) pipelines will be integrated sequentially.
-2. **OOV Dictionary Expansion**: Insights from the 27 legacy `g2pkk` win cases (Section 4.4) will be used to expand SNAP's proper noun dictionary and refine possessive particle '의' and tensification rules.
+1. **Korean Pipeline Maturity & Multi-Speaker Checkpoint Expansion**: The Korean (KO) pipeline has achieved a high level of maturity across text normalization, phonological rules, 1:1 BERT token alignment, and INT8 ONNX quantization. Future work will introduce Korean multi-speaker checkpoints to offer diverse voice profiles.
+2. **Multilingual (Japanese / English) Phased Expansion**: The unified SNAP C++ frontend and native BERT integration will be sequentially extended to the Japanese (JA) and English (EN) pipelines supported by MeloTTS.
 
 ---
 
