@@ -85,24 +85,35 @@ snap_voice/
 
 ## 4. Python API Usage
 
+### End-to-End Speech Synthesis
 ```python
-from snap_wrapper import SNAPEngineManager
 from melo.api import TTS
 
-# 1. Initialize SNAP C++ Engine Manager
+# 1. Initialize MeloTTS with integrated SNAP C++ Native Pipeline
+#    (Automatically binds SNAP C++ ITN, WordPiece G2P, and INT8 ONNX BERT)
+model = TTS(language="KR", device="auto")
+
+# 2. Synthesize speech directly to WAV file
+text = "여기서 3번 버스를 타고 3번 갈아타야 합니다."
+model.tts_to_file(
+    text=text,
+    speaker_id=model.hps.data.spk2id["KR"],
+    output_path="output_demo.wav"
+)
+```
+
+### (Optional) Direct SNAP C++ SDK Inspection
+```python
+from snap_wrapper import SNAPEngineManager
+
+# Direct access to SNAP C++ ITN and raw 768-dim BERT hidden state tensor
 manager = SNAPEngineManager()
 engine = manager.get_engine(lang="ko")
 
-# 2. Load MeloTTS model
-model = TTS(language="KR", device="cpu")
-
-# 3. Obtain text normalization & raw BERT hidden state tensor via C-API
-text = "2026년 8월 12일 서울의 날씨는 매우 맑고 기온은 28도입니다."
-norm_res = engine.process(text)
-bert_tensor, word2ph = engine.get_bert_features(text)
-
-# 4. Synthesize speech to WAV file
-model.tts_to_file(text, model.hps.data.spk2id["KR"], "output_demo.wav")
+normalized_text = engine.process("여기서 3번 버스를 타고 3번 갈아타야 합니다.")
+bert_tensor, word2ph = engine.get_bert_features("여기서 3번 버스를 타고 3번 갈아타야 합니다.")
+print(f"Normalized: {normalized_text}")
+print(f"BERT Tensor Shape: {bert_tensor.shape}")  # [1, 768, seq_len]
 ```
 
 ---
