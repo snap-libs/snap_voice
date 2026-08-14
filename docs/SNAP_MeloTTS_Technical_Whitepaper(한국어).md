@@ -16,22 +16,7 @@ MeloTTS는 다국어를 지원하고 SNAP 역시 3개국어(한국어, 일본어
 
 SNAP을 MeloTTS 엔진에 밀접하게 통합(Tightly Coupled Integration)하기 위해 소스코드 레벨에서 2가지 핵심 영역을 수정하였다.
 
-```mermaid
-flowchart TD
-    subgraph Legacy ["Legacy MeloTTS Pipeline"]
-        L_Input["입력 텍스트"] --> L_Pre["Python 전처리: num2words + g2pkk"]
-        L_Pre --> L_Bert["PyTorch FP32 BERT 모델 로딩 및 연산"]
-        L_Bert --> L_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
-    end
-
-    subgraph Integrated ["SNAP + MeloTTS Integrated Pipeline"]
-        I_Input["입력 텍스트"] --> I_SNAP["SNAP C++ Engine & INT8 ONNX BERT"]
-        I_SNAP -->|1. g2pkk / num2words 전처리 제거| I_Clean["정규화 & G2P 텍스트"]
-        I_SNAP -->|2. C-API Precomputed Shared BERT Tensor| I_Cache["Precomputed BERT Feature Tensor"]
-        I_Clean --> I_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
-        I_Cache --> I_TTS
-    end
-```
+![SNAP + MeloTTS Integration Architecture](images/architecture_kr.svg)
 
 ### 2.1. 전처리 파이프라인 교체 및 불필요 전처리 라이브러리 제거
 * **기존 방식**: MeloTTS 내부의 legacy 전처리 방식(Python regex 기반 텍스트 정리, `num2words`, KakaoBrain `g2pkk` 등)은 별도의 전처리 라이브러리 의존성이 존재하였으며, PyTorch FP32 BERT 모델(`kykim/bert-kor-base`, 약 420MB)을 런타임에 직접 로딩하여 연산하는 구조였다.

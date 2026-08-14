@@ -16,22 +16,7 @@ While MeloTTS supports multi-lingual synthesis and SNAP natively incorporates a 
 
 To achieve tightly coupled integration between SNAP and the MeloTTS engine, two core components of the codebase were modified.
 
-```mermaid
-flowchart TD
-    subgraph Legacy ["Legacy MeloTTS Pipeline"]
-        L_Input["Input Text"] --> L_Pre["Python Preprocessing: num2words + g2pkk"]
-        L_Pre --> L_Bert["PyTorch FP32 BERT Loading & Inference"]
-        L_Bert --> L_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
-    end
-
-    subgraph Integrated ["SNAP + MeloTTS Integrated Pipeline"]
-        I_Input["Input Text"] --> I_SNAP["SNAP C++ Engine & INT8 ONNX BERT"]
-        I_SNAP -->|1. Remove g2pkk / num2words| I_Clean["Normalized & G2P Text"]
-        I_SNAP -->|2. C-API Precomputed Shared BERT Tensor| I_Cache["Precomputed BERT Feature Tensor"]
-        I_Clean --> I_TTS["MeloTTS Acoustic Model (PyTorch VITS)"]
-        I_Cache --> I_TTS
-    end
-```
+![SNAP + MeloTTS Integration Architecture](images/architecture_en.svg)
 
 ### 2.1. Frontend Replacement & Removal of Legacy Dependencies
 * **Legacy Approach**: MeloTTS originally relied on Python regex-based text cleaning, external libraries (`num2words`, KakaoBrain `g2pkk`), and loaded a PyTorch FP32 BERT model (`kykim/bert-kor-base`, ~420 MB) dynamically at runtime.
