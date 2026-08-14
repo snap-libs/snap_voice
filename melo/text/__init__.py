@@ -5,7 +5,8 @@ _symbol_to_id = {s: i for i, s in enumerate(symbols)}
 
 def cleaned_text_to_sequence(cleaned_text, tones, language, symbol_to_id=None):
     symbol_to_id_map = symbol_to_id if symbol_to_id else _symbol_to_id
-    phones = [symbol_to_id_map[symbol] for symbol in cleaned_text]
+    unk_id = symbol_to_id_map.get('UNK', symbol_to_id_map.get('_', 0))
+    phones = [symbol_to_id_map.get(symbol, unk_id) for symbol in cleaned_text]
     tone_start = language_tone_start_map[language]
     tones = [i + tone_start for i in tones]
     lang_id = language_id_map[language]

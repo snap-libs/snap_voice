@@ -25,7 +25,7 @@ def get_bert_feature(text, word2ph, device=None, model_id='tohoku-nlp/bert-base-
         tokenizer = AutoTokenizer.from_pretrained(model_id)
         tokenizers[model_id] = tokenizer
     else:
-        model = models[model_id]
+        model = models[model_id].to(device)
         tokenizer = tokenizers[model_id]
 
 
