@@ -1,13 +1,14 @@
 # SNAP Voice (`snap_voice`)
 
 > 🏠 **[SNAP Project Homepage](https://snap-libs.github.io/snap)**  
-> 🌐 **[SNAP Main Hub (`snap`)](https://github.com/snap-libs/snap)** | ⚡ **[SNAP C++ SDK (`snap_cpp`)](https://github.com/snap-libs/snap_cpp)** | 🎙️ **[SNAP Voice (`snap_voice`)](https://github.com/snap-libs/snap_voice)**
+> 🌐 **[SNAP Main Hub (`snap`)](https://github.com/snap-libs/snap)** | ⚡ **[SNAP C++ SDK (`snap_cpp`)](https://github.com/snap-libs/snap_cpp)**
 
 The **`snap_voice`** project aims to deliver high-quality end-to-end speech synthesis by integrating the high-performance [**SNAP C++ Engine (`snap_cpp`)**](https://github.com/snap-libs/snap_cpp) with various backend Text-to-Speech (TTS) engines.
 
 As our first milestone, we integrated the **MeloTTS** backend with the SNAP C++ Frontend, achieving significantly improved speech synthesis quality, precise Inverse Text Normalization (ITN), and contextual Phonetic G2P. While MeloTTS and SNAP C++ support multilingual processing (Korean, Japanese, English), this repository provides an end-to-end integrated module optimized for high-fidelity speech synthesis.
 
-> 📄 **Technical Whitepaper**: 🇬🇧 [**English Version**](docs/SNAP_MeloTTS_Technical_Whitepaper.md) | 🇰🇷 [**Korean Version**](<docs/SNAP_MeloTTS_Technical_Whitepaper(한국어).md>)
+> 📄 **Technical Whitepaper**: 🇬🇧 [**English Version**](docs/SNAP_MeloTTS_Technical_Whitepaper.md) | 🇰🇷 [**Korean Version**](<docs/SNAP_MeloTTS_Technical_Whitepaper(한국어).md>)  
+> 🤗 **Live Demo**: [**Hugging Face Spaces**](https://huggingface.co/spaces/softguy777/snap_voice_demo)
 
 ---
 
