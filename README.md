@@ -1,7 +1,7 @@
 # SNAP Voice (`snap_voice`)
 
 > 🏠 **[SNAP Project Homepage](https://snap-libs.github.io/snap)**  
-> 🌐 **[SNAP Main Hub (`snap`)](https://github.com/snap-libs/snap)** | ⚡ **[SNAP C++ SDK (`snap_cpp`)](https://github.com/snap-libs/snap_cpp)**
+> 🌐 **[SNAP Main Hub (`snap`)](https://github.com/snap-libs/snap)** | ⚡ **[SNAP C++ SDK (`snap_cpp`)](https://github.com/snap-libs/snap_cpp)** | ✉️ **[Contact](mailto:snap.leejh@gmail.com)**
 
 The **`snap_voice`** project aims to deliver high-quality end-to-end speech synthesis by integrating the high-performance [**SNAP C++ Engine (`snap_cpp`)**](https://github.com/snap-libs/snap_cpp) with various backend Text-to-Speech (TTS) engines.
 
@@ -125,3 +125,13 @@ print(f"BERT Tensor Shape: {bert_tensor.shape}")  # [1, 768, seq_len]
 * 🌐 [**`snap-libs/snap`**](https://github.com/snap-libs/snap) : SNAP main hub repository
 * ⚡ [**`snap-libs/snap_cpp`**](https://github.com/snap-libs/snap_cpp) : High-performance C++ ITN / G2P / BERT Hidden State SDK
 * 🎙️ [**`snap-libs/snap_voice`**](https://github.com/snap-libs/snap_voice) : Multilingual end-to-end speech synthesis modules
+
+---
+
+## 6. Community & Contact
+We welcome questions, feedback, bug reports, and collaboration inquiries!
+
+* ✉️ **Official Email**: [snap.leejh@gmail.com](mailto:snap.leejh@gmail.com)
+* 🐛 **Bug Reports & Issues**: [https://github.com/snap-libs/snap_voice/issues](https://github.com/snap-libs/snap_voice/issues)
+* 💬 **GitHub Discussions**: [https://github.com/snap-libs/snap_voice/discussions](https://github.com/snap-libs/snap_voice/discussions)
+* 🤗 **Hugging Face Spaces**: [https://huggingface.co/spaces/softguy777/snap_voice_demo](https://huggingface.co/spaces/softguy777/snap_voice_demo)
