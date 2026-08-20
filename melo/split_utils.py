@@ -28,12 +28,12 @@ def split_sentences_zh(text, min_len=10):
     text = re.sub('[，]', ',', text)
     # 将文本中的换行符、空格和制表符替换为空格
     text = re.sub('[\n\t ]+', ' ', text)
-    # Split only on sentence terminators (. ! ?) while protecting decimal numbers (e.g., 3.5km) and commas
-    text = re.sub(r'([.!?]+)(?=\s|$)', r'\1 $#!', text)
+    # 在标点符号后添加一个空格
+    text = re.sub('([,.!?;])', r'\1 $#!', text)
     # 分隔句子并去除前后空格
-    sentences = [s.strip() for s in text.split('$#!') if s.strip()]
-    if not sentences:
-        return [text]
+    # sentences = [s.strip() for s in re.split('(。|！|？|；)', text)]
+    sentences = [s.strip() for s in text.split('$#!')]
+    if len(sentences[-1]) == 0: del sentences[-1]
 
     new_sentences = []
     new_sent = []

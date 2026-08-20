@@ -12,6 +12,7 @@ import torch
 
 from . import utils
 from . import commons
+from .text import cleaner
 from .models import SynthesizerTrn
 from .split_utils import split_sentence
 from .mel_processing import spectrogram_torch, spectrogram_torch_conv
@@ -82,7 +83,12 @@ class TTS(nn.Module):
 
     def tts_to_file(self, text, speaker_id, output_path=None, sdp_ratio=0.2, noise_scale=0.6, noise_scale_w=0.8, speed=1.0, pbar=None, format=None, position=None, quiet=False,):
         language = self.language
-        texts = self.split_sentences_into_pieces(text, language, quiet)
+        # 1. First run frontend text normalization (SNAP C++ Engine) on full input text (Single-pass only!)
+        language_module = cleaner._get_language_module(language)
+        norm_full_text = language_module.text_normalize(text)
+        
+        # 2. Split normalized text into sentence pieces (numbers/decimals are already words, so no split corruption)
+        texts = self.split_sentences_into_pieces(norm_full_text, language, quiet)
         audio_list = []
         if pbar:
             tx = pbar(texts)
@@ -97,7 +103,7 @@ class TTS(nn.Module):
             if language in ['EN', 'ZH_MIX_EN']:
                 t = re.sub(r'([a-z])([A-Z])', r'\1 \2', t)
             device = self.device
-            bert, ja_bert, phones, tones, lang_ids = utils.get_text_for_tts_infer(t, language, self.hps, device, self.symbol_to_id)
+            bert, ja_bert, phones, tones, lang_ids = utils.get_text_for_tts_infer(t, language, self.hps, device, self.symbol_to_id, is_already_normalized=True)
             with torch.no_grad():
                 x_tst = phones.to(device).unsqueeze(0)
                 tones = tones.to(device).unsqueeze(0)

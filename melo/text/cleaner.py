@@ -23,9 +23,12 @@ def _get_language_module(language):
         _language_module_cache[language] = importlib.import_module(f".{mod_name}", package="melo.text")
     return _language_module_cache[language]
 
-def clean_text(text, language):
+def clean_text(text, language, is_already_normalized=False):
     language_module = _get_language_module(language)
-    norm_text = language_module.text_normalize(text)
+    if is_already_normalized:
+        norm_text = text
+    else:
+        norm_text = language_module.text_normalize(text)
     phones, tones, word2ph = language_module.g2p(norm_text)
     return norm_text, phones, tones, word2ph
 
