@@ -81,11 +81,14 @@ class TTS(nn.Module):
             print(" > ===========================")
         return texts
 
-    def tts_to_file(self, text, speaker_id, output_path=None, sdp_ratio=0.2, noise_scale=0.6, noise_scale_w=0.8, speed=1.0, pbar=None, format=None, position=None, quiet=False,):
+    def tts_to_file(self, text, speaker_id, output_path=None, sdp_ratio=0.2, noise_scale=0.6, noise_scale_w=0.8, speed=1.0, pbar=None, format=None, position=None, quiet=False, is_already_normalized=False):
         language = self.language
-        # 1. First run frontend text normalization (SNAP C++ Engine) on full input text (Single-pass only!)
-        language_module = cleaner._get_language_module(language)
-        norm_full_text = language_module.text_normalize(text)
+        # 1. Frontend text normalization (SNAP C++ Engine) if not already normalized
+        if is_already_normalized:
+            norm_full_text = text
+        else:
+            language_module = cleaner._get_language_module(language)
+            norm_full_text = language_module.text_normalize(text)
         
         # 2. Split normalized text into sentence pieces (numbers/decimals are already words, so no split corruption)
         texts = self.split_sentences_into_pieces(norm_full_text, language, quiet)
