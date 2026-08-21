@@ -135,3 +135,16 @@ We welcome questions, feedback, bug reports, and collaboration inquiries!
 * 🐛 **Bug Reports & Issues**: [https://github.com/snap-libs/snap_voice/issues](https://github.com/snap-libs/snap_voice/issues)
 * 💬 **GitHub Discussions**: [https://github.com/snap-libs/snap_voice/discussions](https://github.com/snap-libs/snap_voice/discussions)
 * 🤗 **Hugging Face Spaces**: [https://huggingface.co/spaces/softguy777/snap_voice_demo](https://huggingface.co/spaces/softguy777/snap_voice_demo)
+
+---
+
+## 7. License & Dual Licensing
+
+SNAP Voice (`snap_voice`) is licensed under a **Dual License** model:
+
+1. **Open Source & Research (GNU AGPLv3)**:
+   - Free for non-commercial, open-source projects, academic use, and research under the **GNU Affero General Public License v3 (AGPL-3.0)**.
+   - Any software, SaaS platform, cloud API, or service built with or embedding SNAP Voice must make its complete source code available under AGPLv3.
+2. **Commercial License**:
+   - Required for proprietary, closed-source products, on-premise deployments, or commercial cloud TTS services wishing to keep source code private.
+   - For licensing terms, pricing, and inquiries, please contact: [snap.leejh@gmail.com](mailto:snap.leejh@gmail.com)
