@@ -188,13 +188,17 @@ def get_bert_feature(text, word2ph, device='cpu'):
         if bert_tensor is not None:
             res = bert_tensor.squeeze(0).t().numpy()
             num_feats = res.shape[0]
-            # 1:1 contract: word2ph entries are built from the same WordPiece
-            # tokenizer as the C++ BERT (+[CLS]/[SEP] pads), so len(word2ph)
-            # must equal num_feats. (engine's snap_w2ph is a per-token
-            # placeholder of 1s and is intentionally not used.)
-            print(f"[SNAP BERT Space Live Debug] bert seq={num_feats}, word2ph entries={len(word2ph)}, sum(word2ph)={sum(word2ph)}")
-            if len(word2ph) != num_feats:
-                print(f"[SNAP BERT] WARN: word2ph entries ({len(word2ph)}) != BERT tokens ({num_feats}); feature alignment degraded.")
+
+            # Mask out [UNK] tokens (phonetic tokens not in WordPiece vocab) to prevent attention distortion & silence drop
+            tokenizer = _get_ko_tokenizer()
+            if tokenizer is not None:
+                enc = tokenizer.encode(text, add_special_tokens=False)
+                expected_seq = len(enc.tokens) + 2
+                if expected_seq == num_feats:
+                    for i, tok in enumerate(enc.tokens):
+                        if tok == '[UNK]' and (i + 1) < num_feats:
+                            res[i + 1] = 0.0
+
             phone_level_feature = []
             for i, count in enumerate(word2ph):
                 feat_idx = min(i, num_feats - 1)
