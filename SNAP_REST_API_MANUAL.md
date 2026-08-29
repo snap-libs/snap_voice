@@ -96,9 +96,17 @@ API 서버의 동작 상태 및 C++ 모델 엔진의 적재 여부를 확인합�
 | :--- | :---: | :---: | :--- |
 | `text` | `string` | **(필수)** | 정규화 및 발음 변환할 원문 (최대 5,000자) |
 | `custom_dict` | `object` | `null` | 사용자 동적 커스텀 사전 (`{"원문단어": "치환발음"}`) |
-| `config.prosody_format` | `string` | `"tags"` | 운율 쉼 표기 방식: `"tags"`, `"ssml"`, `"none"` |
+| `config.lang` | `string` | `"ko"` | 대상 언어 코드 (`"ko"`, `"ja"`, `"en"`) |
+| `config.prosody_format` | `string` | `"tags"` | 운율 쉼 표기 방식: `"tags"` (`[P1]/[P2]/[P3]`), `"ssml"` (`<break .../>`), `"none"` |
 | `config.return_ipa` | `boolean` | `false` | 국제 음성 기호(IPA) 생성 및 반환 여부 |
-| `config.lang` | `string` | `"ko"` | 대상 언어 코드 (`"ko"`) |
+| `config.vowel_length` | `boolean` | `true` | (한국어 전용) 모음 장단음 표기 여부 (`true`: '밤:' / `false`: '밤') |
+| `config.pitch_accent` | `boolean` | `true` | (일본어 전용) 악센트 핵 표기 여부 |
+| `config.script` | `string` | `"katakana"` | (일본어 전용) 출력 문자 체계: `"katakana"`, `"hiragana"`, `"romaji"` |
+
+> 💡 **3단계 캐스케이딩 설정 계층 (Cascading Configuration Hierarchy)**:  
+> 1. **기본값 보존**: 사용자가 `config`에 특정 필드를 생략하면, 서버 파일(`snap_config.json`)의 안전 기본값이 유지됩니다.  
+> 2. **선택적 오버라이드**: 사용자가 넘겨준 필드(`return_ipa`, `prosody_format` 등)만 해당 요청에 한하여 외과적으로 덮어씌워집니다.  
+> 3. **완벽한 하위 호환**: 기존 호출 방식(`{"text": "..."}`)은 아무런 코드 수정 없이 그대로 100% 호환됩니다.
 
 #### 요청 예시 (Request Body)
 ```json
@@ -109,8 +117,10 @@ API 서버의 동작 상태 및 C++ 모델 엔진의 적재 여부를 확인합�
     "LG CNS": "엘지씨엔에스"
   },
   "config": {
+    "lang": "ko",
     "prosody_format": "tags",
-    "return_ipa": true
+    "return_ipa": false,
+    "vowel_length": true
   }
 }
 ```
