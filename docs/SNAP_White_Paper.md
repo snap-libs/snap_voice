@@ -6,8 +6,10 @@
 **Author**: Jaihyuk Lee ([snap.leejh@gmail.com](mailto:snap.leejh@gmail.com))  
 **Published**: August 2026 | **Version**: 1.0.0
 
-[English](SNAP_White_Paper.md) | [한국어](SNAP_White_Paper_KO.md)  
+[English](SNAP_White_Paper_v1.0.md) | [한국어](SNAP_White_Paper_v1.0_KO.md)  
 [Official Website](https://snap-libs.github.io/snap/) | [Text Frontend Demo](https://huggingface.co/spaces/softguy777/snap-demo) | [MeloTTS Demo](https://huggingface.co/spaces/softguy777/snap_voice_demo) | [Piper Demo](https://huggingface.co/spaces/softguy777/snap_voice_demo2) | [F5-TTS Demo](https://huggingface.co/spaces/softguy777/snap_voice_demo3)
+
+> 🚀 **Latest Version Notice**: For the latest large-scale benchmarks and commercial engine specifications, see the **[SNAP Korean v2.0 Technical White Paper](SNAP_White_Paper_v2.0.md)** ([한국어 v2.0 백서](SNAP_White_Paper_v2.0_KO.md)). This document is the original research white paper (v1.0) establishing Pure Context Probing.
 
 ---
 
@@ -109,7 +111,9 @@ SNAP converts raw input text into authentic phonetic sequences and natural proso
   * **Input**: `"정부는 오늘 오전 국무회의를 열고 내년도 예산안 편성 지침을 최종 확정했습니다"`
   * **Output (SSML)**: `<speak>정부는 <break strength="weak"/> 오늘 오전 궁무회이를 열고 <break strength="medium"/> 내년도 예사난 편성 지치믈 최종 확쩡핻씀니다.</speak>`
 * **STT Sentence Boundary Restoration**:
-  * Reconstructs clause and sentence boundaries from unpunctuated ASR transcripts.
+  * Reconstructs clause and sentence boundaries from unpunctuated ASR transcripts and inserts natural recitation pacing.
+  * **Raw ASR Input (Unpunctuated)**: `"오늘 날씨가 참 맑네요 좋은 하루 보내세요"`
+  * **Restored Output**: `"오늘 날씨가 참 맑네요. [Strong break] 좋은 하루 보내세요. [Sentence terminator]"`
 
 ---
 
@@ -218,3 +222,18 @@ All three languages operate with dedicated Probing Heads and rule pipelines, ser
     * **Dates/Time**: `"이천이십육년 팔월 이십사일"` → **`2026년 8월 24일`** / `"오후 세시 십분"` → **`오후 3:10`**
     * **Units**: `"삼점오 킬로그램"` → **`3.5kg`** / `"이십오 퍼센트"` → **`25%`**
     * **Japanese**: `"にまんさんぜんえん"` → **`23,000円`** / `"ごがついつか"` → **`5月5日`**
+
+* **Flexible Formatting Modes for Downstream Needs**:
+  * **Standard Written Mode (Default)**: Formats text optimally for captions and documentation (`23,500원`, `2026. 8. 24.`).
+  * **Unit Representation Control**: Supports configurable preservation of spoken units (`3.5킬로그램`) vs. conversion to standard symbols/alphanumeric units (`3.5kg`).
+  * **Conservative Parsing Control**: Provides domain-specific controls to safely suppress risky normalization in ambiguous contexts.
+
+---
+
+### 📚 Related Documents & Resources
+* 🚀 **[SNAP Korean v2.0 Technical White Paper](SNAP_White_Paper_v2.0.md)** ([한국어 v2.0 백서](SNAP_White_Paper_v2.0_KO.md)): Latest architecture & large-scale benchmarks
+* 📖 **[SNAP Korean v2.0 Functional Specification](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)**: Comprehensive mapping of 30 standard phonology articles & numeral rules
+* 📋 **[SNAP v2.0 REST API Manual](SNAP_REST_API_MANUAL.md)** ([한국어](SNAP_REST_API_MANUAL_KO.md)): Parameter specifications and request recipes
+* 💻 **[C/C++ Native SDK Developer Guide](SNAP_SDK_API_MANUAL.md)** ([한국어](SNAP_SDK_API_MANUAL_KO.md)): C-API headers and linking guide
+* 🎮 **[SNAP v2.0 Live TTS Demo (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**: Real-time web demo for Korean v2.0
+
