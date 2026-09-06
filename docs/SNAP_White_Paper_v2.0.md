@@ -256,9 +256,9 @@ Heteronyms distinguishable by part-of-speech alone are processed via Morph Head'
 
 | Head Category | Target Challenge & Scope | Evaluation Dataset Size | Measured Accuracy | Analysis & Findings |
 | :--- | :--- | :---: | :---: | :--- |
-| **Counter Head** | Sino vs. Native classification for 8 major counters (대, 번, 장, 기, etc.) | 6,959 instances | **`99.76%`** | Matches 12L Teacher accuracy (`99.65%`) |
-| **Semiotic Head** | Contextual colloquialization for 8 symbol formats (`:`, `/`, `~`, etc.) | 2,151 instances | **`99.40%`** | Disambiguates time, dates, ratios, scores |
-| **Heteronym Head** | 9 major homographs sharing identical POS tags (*대가, 시가, 잠자리*, etc.) | 1,943 instances | **`93.40%`** | Decoupled sub-heads eliminate cross-class interference |
+| **Counter Head** | Sino vs. Native classification across 8 major counters (*대, 세트, 점, 장, 동, 단, 번, 기*) | 8-unit balanced suite 560 items | **`99.11%`** | 5 units achieve 100% pass rate; C++ 445.6 FPS throughput |
+| **Semiotic Head** | Contextual colloquialization for 8 symbol formats (time, date, score, ratio, fraction, quarter, etc.) | 8-class balanced suite 560 items | **`98.21%`** | Dedicated colon/slash sub-heads; 5 classes achieve 100% pass (371.6 FPS) |
+| **Heteronym Head** | Disambiguation of 9 core homographs sharing identical POS tags (*안다, 대가, 잠자리*, etc.) | 9-word comprehensive suite 873 items | **`97.25%`** | Decoupled 9 sub-heads achieve 100% on *안다/열병/감기* (428.0 FPS) |
 | **Morph Head** | Contextual 158 detailed BIO-POS tagging & boundary detection | NIKL Morphological Corpus (NIKL_MP 2025 Spoken/Written) 12,432 sentences (243K chars) | **`93.98%`** | Validated on Jamo-level 2D DP refined holdout |
 
 > **💡 Morph Head Error Breakdown & Practical Phonological Impact**:  
