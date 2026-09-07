@@ -1,4 +1,4 @@
-﻿# SNAP (Semantic Normalization via Attached Probes)
+# SNAP (Semantic Normalization via Attached Probes)
 
 SNAP is a real-time, context-aware speech pre-processing (TTS Frontend & ITN) engine.  
 Building upon the multilingual (Korean, Japanese, English) v1.0 research foundation, we introduce **Korean TTS Frontend Engine v2.0**, engineered for production environments with enhanced C++ performance optimizations and colloquial speech style transformation options. Japanese and English v2.0 will be released in subsequent updates.
@@ -18,7 +18,7 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 ### 🏛️ SNAP v1.0 (Multilingual Research Foundation)
 * 📑 **[SNAP v1.0 Technical White Paper](docs/SNAP_White_Paper_v1.0.md)**: Original research white paper on Korean-Japanese-English hybrid Probing Heads
 * 🎮 **[SNAP v1.0 Multilingual Frontend Demo](https://huggingface.co/spaces/softguy777/snap-demo)**: Real-time multilingual text normalization and G2P
-* 🎙️ **Open-Source TTS Demos**: [MeloTTS](https://huggingface.co/spaces/softguy777/snap_voice_demo) | [Piper](https://huggingface.co/spaces/softguy777/snap_voice_demo2) | [F5-TTS](https://huggingface.co/spaces/softguy777/snap_voice_demo3)
+* 🎙️ **Open-Source TTS Demos**: [Piper](https://huggingface.co/spaces/softguy777/snap_voice_demo2) | [F5-TTS](https://huggingface.co/spaces/softguy777/snap_voice_demo3)
 
 ---
 

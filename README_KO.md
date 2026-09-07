@@ -18,7 +18,7 @@ SNAP은 문맥 인지형 실시간 음성 전처리(TTS Frontend & ITN) 엔진�
 ### 🏛️ SNAP v1.0 (다국어 연구 기반)
 * 📑 **[SNAP v1.0 기술문서](docs/SNAP_White_Paper_v1.0_KO.md)**: 한·일·영 하이브리드 Probing Head 원천 연구 백서
 * 🎮 **[SNAP v1.0 다국어 프론트엔드 데모](https://huggingface.co/spaces/softguy777/snap-demo)**: 한·일·영 텍스트 정규화 및 G2P
-* 🎙️ **오픈소스 TTS 연동 데모**: [MeloTTS](https://huggingface.co/spaces/softguy777/snap_voice_demo) | [Piper](https://huggingface.co/spaces/softguy777/snap_voice_demo2) | [F5-TTS](https://huggingface.co/spaces/softguy777/snap_voice_demo3)
+* 🎙️ **오픈소스 TTS 연동 데모**: [Piper](https://huggingface.co/spaces/softguy777/snap_voice_demo2) | [F5-TTS](https://huggingface.co/spaces/softguy777/snap_voice_demo3)
 
 ---
 
