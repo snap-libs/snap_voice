@@ -12,7 +12,7 @@ SNAP은 문맥 인지형 실시간 음성 전처리(TTS Frontend & ITN) 엔진�
 ### 🚀 SNAP v2.0 (한국어)
 * 🎮 **[SNAP v2.0 실시간 TTS 연동 데모](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**: 한국어 v2.0 전처리 및 음성 합성 라이브 테스트
 * 📑 **[SNAP v2.0 한국어 기술문서](docs/SNAP_White_Paper_v2.0_KO.md)**: Distilled Mini BERT 백본, 고성능 C++ 네이티브 최적화 및 벤치마크
-* 📖 **[SNAP v2.0 한국어 기능 명세서](docs/SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)**: 표준 발음법 30개 조항 전수 지원, 문맥 변별 및 단위 정규화 세부 기능 명세
+* 📖 **[SNAP v2.0 한국어 기능 명세서](docs/SNAP_KO_v2.0_FUNCTIONAL_SPEC_KO.md)**: 표준 발음법 30개 조항 전수 지원, 문맥 변별 및 단위 정규화 세부 기능 명세
 * 📋 **[SNAP v2.0 API 문서](docs/SNAP_REST_API_MANUAL_KO.md)**: 공개 REST API 파라미터 및 연동 규격
 
 ### 🏛️ SNAP v1.0 (다국어 연구 기반)

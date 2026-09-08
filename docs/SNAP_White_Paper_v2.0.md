@@ -7,7 +7,7 @@
 **Published**: September 2026 | **Version**: 2.0.0  
 
 [English](SNAP_White_Paper_v2.0.md) | [한국어](SNAP_White_Paper_v2.0_KO.md)  
-[Official Website](https://snap-libs.github.io/snap/) | [Live TTS Demo (Demo 4)](https://huggingface.co/spaces/softguy777/snap_voice_demo4) | [Functional Spec](SNAP_KO_v2.0_FUNCTIONAL_SPEC_EN.md) | [API Manual](SNAP_REST_API_MANUAL.md)
+[Official Website](https://snap-libs.github.io/snap/) | [Live TTS Demo (Demo 4)](https://huggingface.co/spaces/softguy777/snap_voice_demo4) | [Functional Spec](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md) | [API Manual](SNAP_REST_API_MANUAL.md)
 
 ---
 
@@ -236,7 +236,7 @@ This distillation pipeline preserves contextual disambiguation precision while e
 
 ## 3. Korean Phonetic Conversion and Phonological System
 
-Comprehensive rule specifications and conversion examples are cataloged in the [SNAP Korean v2.0 Functional Specification](SNAP_KO_v2.0_FUNCTIONAL_SPEC_EN.md).
+Comprehensive rule specifications and conversion examples are cataloged in the [SNAP Korean v2.0 Functional Specification](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md).
 
 The engine integrates a multi-layered linguistic pre-processing system designed for conversational AI:
 
@@ -466,7 +466,7 @@ Future roadmap initiatives include end-to-end multilingual pipeline consolidatio
 ---
 
 ### 📚 Related Documents & Resources
-* 📖 **[SNAP Korean v2.0 Functional Specification](SNAP_KO_v2.0_FUNCTIONAL_SPEC_EN.md)**: Comprehensive 30-article rule breakdown and unit normalization catalog
+* 📖 **[SNAP Korean v2.0 Functional Specification](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)**: Comprehensive 30-article rule breakdown and unit normalization catalog
 * 📋 **[SNAP v2.0 REST API Manual](SNAP_REST_API_MANUAL.md)**: Endpoint parameters, response schemas, and code recipes
 * 💻 **[SNAP Native C/C++ SDK Manual](SNAP_SDK_API_MANUAL.md)**: C-API headers and linking guide
 * 🎮 **[SNAP v2.0 Live Interactive Demo](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**: Web evaluation sandbox for Korean v2.0
