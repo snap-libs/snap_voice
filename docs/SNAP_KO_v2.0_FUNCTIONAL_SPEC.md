@@ -58,7 +58,7 @@ Among the 30 articles, SNAP reliably handles the 8 major phonological mutations 
 | Phonological Rule Category | Mutation Context | Default / Exception Context | Morphological & Syntactic Criteria |
 |:---|:---|:---|:---|
 | **Sino-Korean 'ㄹ' Tensification (Art. 26)** | `"갈등"` $\rightarrow$ **`[갈뜽]`**, `"결정"` $\rightarrow$ **`[결쩡]`** | `"발달"` $\rightarrow$ **`[발달]`**, `"살다"` $\rightarrow$ **`[살다]`** | Sino-Korean root (tensification) vs. dictionary exceptions (`발달` lax) & native Korean verb stems (`VV` lax) |
-| **Lexical Morpheme Neutralized Liaison (Art. 15)** | `"겉옷"` $\rightarrow$ **`[거톧]`**, `"맛없다"` $\rightarrow$ **`[마섭따]`** | `"옷이"` $\rightarrow$ **`[오시]`**, `"꽃을"` $\rightarrow$ **`[꼬츨]`** | Lexical morphemes (coda neutralization before liaison) vs. Grammatical morphemes (immediate liaison) |
+| **Lexical Morpheme Neutralized Liaison (Art. 15)** | `"겉옷"` $\rightarrow$ **`[거돋]`**, `"맛없다"` $\rightarrow$ **`[마덥따]`** | `"옷이"` $\rightarrow$ **`[오시]`**, `"꽃을"` $\rightarrow$ **`[꼬츨]`** | Lexical morphemes (coda neutralization before liaison) vs. Grammatical morphemes (immediate liaison) |
 | **Passive/Causative Suffix Exception (Art. 24 Note)** | `"신고"` $\rightarrow$ **`[신꼬]`**, `"감다"` $\rightarrow$ **`[감따]`** | `"안기다"` $\rightarrow$ **`[안기다]`**, `"감기다"` $\rightarrow$ **`[감기다]`** | Verb stem tensification before endings vs. Passive/causative suffix (`-기-` maintains lax phoneme) |
 | **Adnominal '-(으)ㄹ' Tensification (Art. 27)** | `"할 수 있다"` $\rightarrow$ **`[할 쑤 읻따]`**, `"갈 데가"` $\rightarrow$ **`[갈 떼가]`** | `"먹을 밥"` $\rightarrow$ **`[머글 밥]`**, `"잘 사람"` $\rightarrow$ **`[잘 사람]`** | Bound nouns after adnominal endings (`수, 것, 줄, 데, 때` whitespace scan) vs. General nouns |
 | **Vowel '의' Multi-Way Branching (Art. 5.4)** | `"우리의"` $\rightarrow$ **`[우리에]`**, `"주의"` $\rightarrow$ **`[주이]`** | `"의사"` $\rightarrow$ **`[의사]`**, `"의의"` $\rightarrow$ **`[의에]`** | Genitive particle (`JKG` $\rightarrow$ `[에]`), non-initial root (`[이]`, `[에]`) vs. initial root without onset (`[의]`) |
@@ -110,7 +110,7 @@ Words distinguished systematically during morphological analysis due to divergen
 | **문과** | `"인문사회 문과"` $\rightarrow$ **`[문꽈]`** | `"방문과 창문"` $\rightarrow$ **`[문과]`** | Compound noun (`문과`[NNG]) vs. Noun + Particle (`문`[NNG] + `과`[JC]) |
 | **본과** | `"의과대학 본과"` $\rightarrow$ **`[본꽈]`** | `"일본과 한국"` $\rightarrow$ **`[본과]`** | Compound noun (`본과`[NNG]) vs. Proper Noun + Particle (`일본`[NNP] + `과`[JC]) |
 | **이과** | `"자연계열 이과"` $\rightarrow$ **`[이꽈]`** | `"교과서 제2과"` $\rightarrow$ **`[이과]`** | Compound noun (`이과`[NNG]) vs. Numeral + Counter (`2`[SN] + `과`[NNBC]) |
-| **맛** | `"맛없다"` $\rightarrow$ **`[마섭따]`** | `"맛이 좋다"` $\rightarrow$ **`[마시]`** | Noun + Adjective (`맛`[NNG] + `없-`[VA]) vs. Noun + Case Particle (`맛`[NNG] + `이`[JKS]) |
+| **맛** | `"맛없다"` $\rightarrow$ **`[마덥따]`** | `"맛이 좋다"` $\rightarrow$ **`[마시]`** | Noun + Adjective (`맛`[NNG] + `없-`[VA]) vs. Noun + Case Particle (`맛`[NNG] + `이`[JKS]) |
 | **못** | `"못 이겨"` $\rightarrow$ **`[몯 이겨]`** | `"연못이 깊다"` $\rightarrow$ **`[연모시]`** | Negative Adverb (`못`[MAG]) vs. Noun + Particle (`연못`[NNG] + `이`[JKS]) |
 
 #### 2) Homograph Neural Disambiguation (Heteronym Probing Head: 9 Core Words)
@@ -328,7 +328,7 @@ Mapping of SNAP Korean v2.0 coverage against all 30 articles of the National Ins
 | | **Art. 12.5** | Coda 'ㅎ' Deletion before Vowel Endings | 낳은 `[나은]`, 쌓아 `[싸아]`, 많아 `[마ː나]` | Full Support |
 | | **Art. 13** | Liaison with Vowel Grammatical Morphemes | 깎아 `[까까]`, 옷이 `[오시]` | Full Support |
 | | **Art. 14** | Cluster Liaison with Vowel Grammatical Morphemes | 닭을 `[달글]`, 앉아 `[안자]`, 값을 `[갑쓸]` | Full Support |
-| | **Art. 15** | Neutralized Liaison before Lexical Morphemes | 겉옷 `[거톧]`, 맛없다 `[마섭따]`, 밭 아래 `[바다래]` | Full Support |
+| | **Art. 15** | Neutralized Liaison before Lexical Morphemes | 겉옷 `[거돋]`, 맛없다 `[마덥따]`, 밭 아래 `[바다래]` | Full Support |
 | | **Art. 16** | Letter Names + Vowel Particle Liaison | 디귿이 `[디그지]`, 키읔이 `[키으기]` | Full Support |
 | **Ch. 5 Assimilation** | **Art. 17** | Palatalization ('ㄷ, ㅌ' + 'ㅣ' $\rightarrow$ [ㅈ, ㅊ]) | 굳이 `[구지]`, 같이 `[가치]`, 붙이다 `[부치다]` | Full Support |
 | | **Art. 18** | Obstruent Nasalization ('ㄱ, ㄷ, ㅂ' + 'ㄴ, ㅁ') | 국물 `[궁물]`, 닫는 `[단는]`, 밥물 `[밤물]` | Full Support |
