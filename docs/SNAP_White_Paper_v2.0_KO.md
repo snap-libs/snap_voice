@@ -7,7 +7,7 @@
 **발행일**: 2026년 9월 | **버전**: 2.0.0  
 
 [English](SNAP_White_Paper_v2.0.md) | [한국어](SNAP_White_Paper_v2.0_KO.md)  
-[공식 웹사이트](https://snap-libs.github.io/snap/) | [실시간 TTS 연동 데모 (Demo 4)](https://huggingface.co/spaces/softguy777/snap_voice_demo4) | [기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md) | [API 매뉴얼](SNAP_REST_API_MANUAL_KO.md)
+[공식 웹사이트](https://snap-libs.github.io/snap/) | [실시간 TTS 연동 데모 (Demo 4)](https://huggingface.co/spaces/softguy777/snap_voice_demo4) | [기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC_KO.md) | [API 매뉴얼](SNAP_REST_API_MANUAL_KO.md)
 
 ---
 
@@ -235,7 +235,7 @@ SNAP v2.0 파이프라인은 텍스트가 유입되는 순간부터 최종 발�
 
 ## 3. 한국어 발음 변환 및 음운 처리 체계
 
-SNAP 한국어 v2.0의 조항별 세부 규칙과 변환 예례는 [SNAP 한국어 v2.0 세부 기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)에 상세히 정의되어 있습니다.
+SNAP 한국어 v2.0의 조항별 세부 규칙과 변환 예례는 [SNAP 한국어 v2.0 세부 기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC_KO.md)에 상세히 정의되어 있습니다.
 
 본 엔진은 음성합성 및 대화형 AI 환경에서 높은 발음 변환 정확도와 자연성을 확보하기 위해 다음과 같은 다층적 음운·언어 처리 체계를 통합 지원합니다:
 
@@ -468,7 +468,7 @@ SNAP은 다음과 같은 아키텍처적 특징을 중심으로 구성되었습�
 ---
 
 ### 📚 관련 문서 및 리소스
-* 📖 **[SNAP 한국어 v2.0 세부 기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)**: 표준 발음법 30개 전 조항 상세 매핑 및 규칙집
+* 📖 **[SNAP 한국어 v2.0 세부 기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC_KO.md)**: 표준 발음법 30개 전 조항 상세 매핑 및 규칙집
 * 📋 **[SNAP v2.0 REST API 매뉴얼](SNAP_REST_API_MANUAL_KO.md)**: 엔드포인트 파라미터 규격 및 연동 예제
 * 💻 **[C/C++ Native SDK 개발자 가이드](SNAP_SDK_API_MANUAL_KO.md)**: C-API 헤더 및 라이브러리 연동 가이드
 * 🎮 **[SNAP v2.0 실시간 데모 (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**: 한국어 v2.0 라이브 웹 데모

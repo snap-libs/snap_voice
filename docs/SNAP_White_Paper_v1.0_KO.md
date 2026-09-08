@@ -240,7 +240,7 @@ SNAP의 처리 속도는 **"타깃 TTS 모델의 BERT 내장 여부"**와 **"입
 
 ### 📚 관련 문서 및 리소스
 * 🚀 **[SNAP 한국어 v2.0 기술 백서](SNAP_White_Paper_v2.0_KO.md)** ([English](SNAP_White_Paper_v2.0.md)): 최신 아키텍처 및 대규모 벤치마크
-* 📖 **[SNAP 한국어 v2.0 세부 기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)**: 표준 발음법 30개 전 조항 상세 매핑 및 규칙집
+* 📖 **[SNAP 한국어 v2.0 세부 기능 명세서](SNAP_KO_v2.0_FUNCTIONAL_SPEC_KO.md)**: 표준 발음법 30개 전 조항 상세 매핑 및 규칙집
 * 📋 **[SNAP v2.0 REST API 매뉴얼](SNAP_REST_API_MANUAL_KO.md)**: 엔드포인트 파라미터 규격 및 연동 예제
 * 💻 **[C/C++ Native SDK 개발자 가이드](SNAP_SDK_API_MANUAL_KO.md)**: C-API 헤더 및 라이브러리 연동 가이드
 * 🎮 **[SNAP v2.0 실시간 데모 (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**: 한국어 v2.0 라이브 웹 데모
