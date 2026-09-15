@@ -10,7 +10,8 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 ## 🔗 Key Documentation & Live Demos
 
 ### 🚀 SNAP v2.0 (Korean)
-* 🎮 **[SNAP v2.0 Real-Time TTS Demo](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**: Live interactive evaluation of Korean v2.0 text pre-processing and voice synthesis
+* 🎮 **[SNAP v2.0 Real-time TTS Demo: SNAP-Edge-tts 연동 demo](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**
+* 🎮 **[SNAP v2.0 Real-time TTS Demo: SNAP-piper tts 연동 demo](https://huggingface.co/spaces/softguy777/snap_voice_demo2)**
 * 📑 **[SNAP v2.0 Korean Technical White Paper](docs/SNAP_White_Paper_v2.0.md)**: Distilled Mini BERT backbone, high-performance C++ native optimizations, and latency benchmarks
 * 📖 **[SNAP v2.0 Korean Functional Specification](docs/SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)**: Complete coverage of 30 NIKL standard pronunciation articles, contextual disambiguation, and unit normalization
 * 📋 **[SNAP v2.0 API Manual](docs/SNAP_REST_API_MANUAL.md)**: Public REST API parameters and integration specifications
@@ -18,7 +19,6 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 ### 🏛️ SNAP v1.0 (Multilingual Research Foundation)
 * 📑 **[SNAP v1.0 Technical White Paper](docs/SNAP_White_Paper_v1.0.md)**: Original research white paper on Korean-Japanese-English hybrid Probing Heads
 * 🎮 **[SNAP v1.0 Multilingual Frontend Demo](https://huggingface.co/spaces/softguy777/snap-demo)**: Real-time multilingual text normalization and G2P
-* 🎙️ **Open-Source TTS Demos**: [Piper](https://huggingface.co/spaces/softguy777/snap_voice_demo2) | [F5-TTS](https://huggingface.co/spaces/softguy777/snap_voice_demo3)
 
 ---
 
