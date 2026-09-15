@@ -183,7 +183,7 @@ Converts English alphabet words into natural Korean pronunciation tailored to na
 For unlisted technical terms and open-source packages, an algorithmic syllabifier (`EngWordReader`) generates natural Korean readings:
 * **CamelCase Decomposition:** `FastAPI` $\rightarrow$ **`패스트에이피아이`**, `DeepLearning` $\rightarrow$ **`딥러닝`**
 * **Sliding Window Subword Splitting:** `glassdoor` $\rightarrow$ **`글라스도어`**, `dataset` $\rightarrow$ **`데이터셋`**
-* **CV-Pattern G2P-Lite Inference:** `Stripe` $\rightarrow$ **`스트라이프`**, `Docker` $\rightarrow$ **`도커`**, `Kubernetes` $\rightarrow$ **`쿠버네티스`**
+* **CV-Pattern G2P-Lite Inference:** `PyTorch` $\rightarrow$ **`파이토치`**, `Stripe` $\rightarrow$ **`스트라이프`**, `Kubernetes` $\rightarrow$ **`쿠버네티스`**
 
 #### 3.2.2. Mixed Alphanumeric Product Model Names
 * **Multi-Tier Compound Patterns:**

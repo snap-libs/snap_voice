@@ -199,7 +199,7 @@ SNAP은 단어 주변의 문맥과 품사 정보를 신경망으로 분석하여
   * `glassdoor` $\rightarrow$ `glass` + `door` $\rightarrow$ **`글라스도어`**
   * `dataset` $\rightarrow$ `data` + `set` $\rightarrow$ **`데이터셋`**
 * **음소-음절 규칙(CV 패턴) 기반 G2P-lite 추론:** 사전에도 없고 분할되지 않는 순수 미등록어는 자음-모음 연속 패턴을 분석하여 한글 음절화.
-  * `Stripe` $\rightarrow$ **`스트라이프`**, `Docker` $\rightarrow$ **`도커`**, `Kubernetes` $\rightarrow$ **`쿠버네티스`**
+  * `PyTorch` $\rightarrow$ **`파이토치`**, `Stripe` $\rightarrow$ **`스트라이프`**, `Kubernetes` $\rightarrow$ **`쿠버네티스`**
 
 #### 3.2.2. 영문+숫자 혼합 복합 제품 모델명
 전자제품, 차량, 하드웨어 규격 등에서 영문과 숫자가 결합된 제품 모델명을 한국어 통용 발음으로 변환합니다. 단일 기종(iPhone 16)부터 시리즈명과 파생 수식어(Pro, Max, Ultra 등)가 결합된 복합 모델명까지 지원합니다.

@@ -30,6 +30,9 @@ snap_cpp/build/
 snap_cpp/build_win/
 snap_cpp/build_linux/
 snap_cpp/build_macos/
+snap_cpp/ort_gpu/
+snap_cpp/ort_gpu_*/
+dist_snap_server/
 artifacts_ci/
 *.exp
 *.lib
