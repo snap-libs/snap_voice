@@ -51,6 +51,7 @@ artifacts_ci/
 !lib/**/VERSION_INFO.json
 run_log.txt
 *.pdf
+!docs/*.pdf
 
 # Large Validation Logs & Reports
 validation/reports/

@@ -10,6 +10,7 @@ SNAP은 문맥 인지형 실시간 음성 전처리(TTS Frontend & ITN) 엔진�
 ## 🔗 주요 문서 및 데모 링크
 
 ### 🚀 SNAP v2.0 (한국어)
+* 📥 **SNAP v2.0 소개서 다운로드 (PDF)**: [한국어](docs/SNAP_v2.0_Overview_KO.pdf) | [영어](docs/SNAP_v2.0_Overview_EN.pdf)
 * 🎮 **[SNAP v2.0 실시간 TTS 데모: SNAP-Edge-tts 연동 데모](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**
 * 🎮 **[SNAP v2.0 실시간 TTS 데모: SNAP-piper tts 연동 데모](https://huggingface.co/spaces/softguy777/snap_voice_demo2)**
 * 📑 **[SNAP v2.0 한국어 기술문서](docs/SNAP_White_Paper_v2.0_KO.md)**: Distilled Mini BERT 백본, 고성능 C++ 네이티브 최적화 및 벤치마크

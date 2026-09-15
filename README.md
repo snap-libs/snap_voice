@@ -10,6 +10,7 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 ## 🔗 Key Documentation & Live Demos
 
 ### 🚀 SNAP v2.0 (Korean)
+* 📥 **SNAP v2.0 Overview Presentation (PDF)**: [Korean](docs/SNAP_v2.0_Overview_KO.pdf) | [English](docs/SNAP_v2.0_Overview_EN.pdf)
 * 🎮 **[SNAP v2.0 Real-time TTS Demo: SNAP-Edge-tts 연동 demo](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**
 * 🎮 **[SNAP v2.0 Real-time TTS Demo: SNAP-piper tts 연동 demo](https://huggingface.co/spaces/softguy777/snap_voice_demo2)**
 * 📑 **[SNAP v2.0 Korean Technical White Paper](docs/SNAP_White_Paper_v2.0.md)**: Distilled Mini BERT backbone, high-performance C++ native optimizations, and latency benchmarks
