@@ -16,6 +16,7 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 * 📑 **[SNAP v2.0 Korean Technical White Paper](docs/SNAP_White_Paper_v2.0.md)**: Distilled Mini BERT backbone, high-performance C++ native optimizations, and latency benchmarks
 * 📖 **[SNAP v2.0 Korean Functional Specification](docs/SNAP_KO_v2.0_FUNCTIONAL_SPEC.md)**: Complete coverage of 30 NIKL standard pronunciation articles, contextual disambiguation, and unit normalization
 * 📋 **[SNAP v2.0 API Manual](docs/SNAP_REST_API_MANUAL.md)**: Public REST API parameters and integration specifications
+* 📊 **[SNAP TN CPU Benchmark](docs/CPU_BENCHMARK_SNAP_TN.md)**: CPU hardware benchmark results across architectures (100% Pure CPU Native)
 
 ### 🏛️ SNAP v1.0 (Multilingual Research Foundation)
 * 📑 **[SNAP v1.0 Technical White Paper](docs/SNAP_White_Paper_v1.0.md)**: Original research white paper on Korean-Japanese-English hybrid Probing Heads
