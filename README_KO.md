@@ -108,6 +108,11 @@ curl -X POST "https://snap-api-673324870645.asia-northeast3.run.app/v1/normalize
 
 더 자세한 설정 및 파라미터는 [SNAP v2.0 API 문서](docs/SNAP_REST_API_MANUAL_KO.md)를 참고하세요.
 
+> [!NOTE]
+> **API 호출 한도 안내 (Fair Use Policy)**  
+> 안정적인 실시간 데모 환경 보장 및 서버 보호를 위해 현재 무료 API는 C-Class IP 서브넷(/24)당 **일일 1,000건, 분당 최대 100건**으로 요청이 제한됩니다 (분당 100건 초과 시 10분간 쿨다운 페널티 적용).  
+> 대규모 배치 전처리나 무제한 트래픽이 필요한 엔터프라이즈 환경의 경우 별도로 문의해 주시기 바랍니다.
+
 ---
 
 ## 🏢 Enterprise & On-Premise SDK
