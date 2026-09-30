@@ -106,6 +106,11 @@ curl -X POST "https://snap-api-673324870645.asia-northeast3.run.app/v1/normalize
 
 For complete parameter specifications and advanced configurations, please consult the [SNAP v2.0 API Manual](docs/SNAP_REST_API_MANUAL.md).
 
+> [!NOTE]
+> **Rate Limits & Fair Use Policy**  
+> To protect public demo stability and prevent resource exhaustion, the free Cloud API is rate-limited to **1,000 requests/day and max 100 requests/minute** per /24 subnet (exceeding 100 req/min activates a 10-minute cooldown penalty).  
+> For large-scale batch processing or dedicated enterprise endpoints, please reach out to us.
+
 ---
 
 ## 🏢 Enterprise & On-Premise SDK
