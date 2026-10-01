@@ -47,7 +47,11 @@ In SNAP v2.0, REST API communication is the standard integration paradigm, suppo
 
 The following are real-world integration examples connecting SNAP with major TTS architectures:
 * **Cloud TTS (Edge-TTS)**: While Edge-TTS handles raw Korean text reasonably well, integrating SNAP as a frontend provides precision contextual numeral readings, heteronym disambiguation, and dynamic custom dictionaries (`custom_dict`), substantially elevating overall pronunciation quality.
+  - 🎮 **Interactive Demo**: [SNAP + Edge-TTS (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo4)
+  - 📑 **Technical Note**: [Architecture & Benchmark Discussion](https://huggingface.co/spaces/softguy777/snap_voice_demo4/discussions/1)
 * **Piper TTS**: Piper's default pre-processor `espeak-ng` provides broad multilingual support but lacks comprehensive handling of complex Korean phonological mutations. Directly mapping SNAP phoneme IDs into Piper's encoder resolves these pronunciation artifacts.
+  - 🎮 **Interactive Demo**: [SNAP + Piper TTS (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo2)
+  - 📑 **Technical Note**: [Model Training with Acoustic & Prosodic Metadata](https://huggingface.co/spaces/softguy777/snap_voice_demo2/discussions/1)
 * **F5-TTS**: Tailored to F5-TTS's character/jamo-level flow matching pipeline, SNAP pre-applies phonological variations and decomposes results into Unicode NFD (Leading Consonant, Vowel, Trailing Consonant) prior to synthesis.
 
 ### Best Practices for Acoustic Model Training
