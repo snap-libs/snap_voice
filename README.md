@@ -31,6 +31,7 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
   - **Speech Style Selection (`speech_style`)**: Formal (`formal` / Hasipsio-che), Polite (`polite` / Haeyo-che), Plain (`plain` / Haera-che)
   - **Vowel Length Notation (`vowel_length`)**: Standard Korean phonological vowel length marking
   - **Unit Reading Styles (`unit_style`)**: Flexible reading conversions (e.g., `km/h` → `kiro`, `kiromiteo`, or `kiromiteopeoawa`)
+* **Acoustic & Prosodic Metadata for TTS Training & Inference**: In addition to standard G2P phonetic sequences, SNAP provides structured metadata—including POS tags, prosodic pause boundaries, and vowel length markers—which can be fed directly into TTS acoustic models during both dataset training and inference for natural rhythm and breathing.
 * **Public REST API**: Openly accessible endpoint for instantaneous evaluation without requiring authentication keys.
 
 ---
