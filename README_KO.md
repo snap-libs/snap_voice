@@ -47,7 +47,11 @@ SNAP v2.0에서는 REST API를 사용하여 연동하는 것이 표준이며, �
 
 다음은 SNAP API 서버와 주요 TTS 모델들과의 연동 사례입니다.
 * **클라우드 TTS (Edge-TTS)**: Edge-TTS는 일반 텍스트 원문만으로도 어느 정도 수준의 발음을 합성하지만, SNAP을 전처리기로 연동하면 문맥에 따른 수사·단위 변별, 동철이음어 구분, 사용자 정의 사전(`custom_dict`) 등 SNAP의 정밀한 의미 분석 기능이 더해져 훨씬 더 정확하고 완성도 높은 발음을 구현합니다.
+  - 🎮 **실시간 데모**: [SNAP + Edge-TTS 데모 (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo4)
+  - 📑 **기술 문서**: [아키텍처 및 벤치마크 토론글](https://huggingface.co/spaces/softguy777/snap_voice_demo4/discussions/1)
 * **Piper TTS**: Piper의 기본 전처리기인 `espeak-ng`는 다국어 지원으로 널리 쓰이지만 한국어·일본어의 복잡한 음운 변동을 처리하기에는 다소 아쉬운 점이 있습니다. SNAP의 음소(Phoneme) ID를 모델 인코더에 직접 매핑하여 이를 보완할 수 있습니다.
+  - 🎮 **실시간 데모**: [SNAP + Piper TTS 데모 (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo2)
+  - 📑 **기술 문서**: [메타데이터를 활용한 화자 모델 학습 가이드](https://huggingface.co/spaces/softguy777/snap_voice_demo2/discussions/1)
 * **F5-TTS**: 텍스트를 자모 단위로 처리하는 F5-TTS 특성에 맞춰, SNAP G2P로 음운 변동을 먼저 반영한 뒤 유니코드 NFD(초성·중성·종성)로 분해하여 모델에 전달합니다.
 
 ### 모델 학습 시 권장 사항
