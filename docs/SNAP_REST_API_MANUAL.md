@@ -173,7 +173,7 @@ Perform neural context analysis, numeral expansion, loanword preservation, heter
       { "surface": "지피유", "pos": "NNG", "start": 15, "end": 18 },
       { "surface": "에서", "pos": "JKB", "start": 18, "end": 20 },
       { "surface": "백", "pos": "SN", "start": 21, "end": 22 },
-      { "surface": "퍼센트", "pos": "SY", "start": 22, "end": 25 },
+      { "surface": "퍼센트", "pos": "NNB", "start": 22, "end": 25 },
       { "surface": "빌드", "pos": "NNG", "start": 26, "end": 28 },
       { "surface": "완료", "pos": "VV", "start": 29, "end": 31 },
       { "surface": "했", "pos": "VV+EP", "start": 31, "end": 32 },
