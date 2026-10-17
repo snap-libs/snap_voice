@@ -1,11 +1,8 @@
 # SNAP C/C++ Native SDK API Reference Manual
 
-[English](SNAP_SDK_API_MANUAL.md) | [한국어](SNAP_SDK_API_MANUAL_KO.md)
-
 > **📌 문서 구분 안내**  
-> * **본 문서 (`SNAP_SDK_API_MANUAL_KO.md`):** C/C++ 네이티브 임베디드 라이브러리(헤더, DLL/SO, 메모리 관리) 한국어 연동 규격서입니다.  
-> * **영문 SDK 규격서:** [`SNAP_SDK_API_MANUAL.md`](SNAP_SDK_API_MANUAL.md)를 참조하세요.  
-> * **웹/클라우드 HTTP REST API 연동:** JSON 엔드포인트 웹 API 규격은 [`SNAP_REST_API_MANUAL_KO.md`](SNAP_REST_API_MANUAL_KO.md) ([English](SNAP_REST_API_MANUAL.md))를 참조하세요.
+> * **본 문서 ([`SNAP_SDK_API_MANUAL.md`](file:///c:/work/snap/SNAP_SDK_API_MANUAL.md)):** C/C++ 네이티브 임베디드 라이브러리(헤더, DLL/SO, 메모리 관리) 연동 규격서입니다.  
+> * **웹/클라우드 HTTP REST API 연동:** JSON 엔드포인트 웹 API 규격은 [`SNAP_REST_API_MANUAL.md`](file:///c:/work/snap/SNAP_REST_API_MANUAL.md)를 참조하세요.
 
 > Header: `include/snap/snap_api.h` & `include/snap/snap_version.h`  
 > Library: `snap_cpp.dll` / `libsnap_cpp.so` / `libsnap_cpp.dylib`
@@ -165,29 +162,35 @@ SNAP_API const char* snap_process(void* handle, const char* text_utf8);
 
 ```json
 {
-  "normalized_text": "이천이십육년 팔월 십이일 서울의 날씨는 매우 맑고 기온은 이십팔도입니다.",
-  "phonology": "이처니심늉년 파뤌 시비일 서우레 날씨는 매우 말꼬 기오는 이십팔또임니다.",
+  "normalized_text": "엔비디아 알티엑스 사공구공 지피유에서 백퍼센트 빌드 완료했습니다.",
+  "phonology": "엔비디아 알티엑쓰 사공구공 지피유에서[P1] 백퍼센트 빌드 왈료핻씀니다.[P3]",
   "pauses": [
-    {"word_idx": 0, "word": "이처니심늉년", "pause": "NONE"},
-    {"word_idx": 1, "word": "파뤌", "pause": "NONE"},
-    {"word_idx": 2, "word": "시비일", "pause": "NONE"},
-    {"word_idx": 3, "word": "서우레", "pause": "NONE"},
-    {"word_idx": 4, "word": "날씨는", "pause": "P1"},
-    {"word_idx": 5, "word": "매우", "pause": "NONE"},
-    {"word_idx": 6, "word": "말꼬", "pause": "P2"},
-    {"word_idx": 7, "word": "기오는", "pause": "NONE"},
-    {"word_idx": 8, "word": "이십팔또임니다.", "pause": "P3"}
+    {"char_offset": 20, "type": "P1", "duration_ms": 150},
+    {"char_offset": 36, "type": "P3", "duration_ms": 500}
   ],
-  "annotations": [],
-  "numbers": [],
-  "morphemes": [],
-  "heteronym": [],
-  "counter": []
+  "morphemes": [
+    {"surface": "엔비디아", "pos": "NNG", "start": 0, "end": 4},
+    {"surface": "알티엑스", "pos": "NNG", "start": 5, "end": 9},
+    {"surface": "사공구공", "pos": "SN", "start": 10, "end": 14},
+    {"surface": "지피유", "pos": "NNG", "start": 15, "end": 18},
+    {"surface": "에서", "pos": "JKB", "start": 18, "end": 20},
+    {"surface": "백", "pos": "SN", "start": 21, "end": 22},
+    {"surface": "퍼센트", "pos": "SY", "start": 22, "end": 25},
+    {"surface": "빌드", "pos": "NNG", "start": 26, "end": 28},
+    {"surface": "완료", "pos": "VV", "start": 29, "end": 31},
+    {"surface": "했", "pos": "VV+EP", "start": 31, "end": 32},
+    {"surface": "습니다", "pos": "EF", "start": 32, "end": 35},
+    {"surface": ".", "pos": "SF", "start": 35, "end": 36}
+  ],
+  "vowel_length": []
 }
 ```
 
+> **Note on `morphemes` Coordinate Alignment**:  
+> Every item in `"morphemes"` (`surface`, `start`, `end`) is aligned to the post-normalization Korean `normalized_text` Unicode character (codepoint) offsets (`normalized_text[start:end] == surface`).
+>
 > **Note on STT Sentence Segmentation**:  
-> In Speech-to-Text (STT) post-processing pipelines, words with `"pause": "P3"` indicate sentence boundaries determined by neural context analysis of sentence-final endings (`EF`). Splitting unpunctuated STT transcripts on `P3` boundaries provides reliable sentence segmentation.
+> In Speech-to-Text (STT) post-processing pipelines, words with `"type": "P3"` indicate sentence boundaries determined by neural context analysis of sentence-final endings (`EF`). Splitting unpunctuated STT transcripts on `P3` boundaries provides reliable sentence segmentation.
 
 ---
 
@@ -378,6 +381,70 @@ const char* plain_results = snap_process_batch_ext(handle, texts, 3, "{\"to_json
 
 snap_free((void*)plain_results);
 ```
+
+---
+
+### `snap_process_document`
+
+긴 문서(소설, 기사, 강의 스크립트 등 512 토큰 초과 텍스트)를 입력받아, 내부 초고속 N-gram 어미 분리기(`SentenceSplitter`)로 문장을 자동 분할하고 배치 추론(`batch_size = 4~8`)을 수행하여 문장별 G2P 결과 및 오프셋을 반환합니다.
+
+```c
+SNAP_API const char* snap_process_document(
+    void* handle,
+    const char* doc_utf8,
+    const char* options_json
+);
+```
+
+**Parameters**
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `handle` | `void*` | `snap_create()`로 생성된 엔진 인스턴스 핸들 |
+| `doc_utf8` | `const char*` | UTF-8 인코딩된 장문 텍스트 |
+| `options_json` | `const char*` | 선택적 JSON 옵션 (예: `"{\"batch_size\": 8, \"to_json\": true}"`) |
+
+**JSON Output Schema (`"to_json": true`, Default)**:
+```json
+{
+  "total_sentences": 2,
+  "sentences": [
+    {
+      "index": 0,
+      "raw": "인공지능 기술은 빠르게 발전하고 있습니다.",
+      "phonology": "인공지능 기수른 빠르게 발쩐하고 읻씀니다.",
+      "normalized_text": "인공지능 기술은 빠르게 발전하고 있습니다.",
+      "start_char": 0,
+      "end_char": 25
+    },
+    ...
+  ]
+}
+```
+
+---
+
+### `snap_process_file`
+
+초대용량 텍스트 파일(수십~수백 MB의 코퍼스, 전자책 전체 텍스트)을 파일 단위로 입력받아, 배치 단위로 처리하면서 결과를 즉시 파일로 스트리밍 저장합니다. 전체 결과를 메모리에 누적하지 않으므로 **100MB 이상의 대용량 파일 작업 시에도 프로세스 RAM 사용량이 10MB 이하로 일정하게 유지**됩니다.
+
+```c
+SNAP_API bool snap_process_file(
+    void* handle,
+    const char* in_file_path,
+    const char* out_file_path,
+    const char* options_json
+);
+```
+
+**Parameters**
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `handle` | `void*` | 엔진 인스턴스 핸들 |
+| `in_file_path` | `const char*` | 입력 텍스트 파일 경로 (UTF-8) |
+| `out_file_path` | `const char*` | 출력 파일 경로 (JSONL 또는 Text) |
+| `options_json` | `const char*` | 선택적 JSON 옵션 (`"to_json": true` ➔ JSON Lines 저장, `"to_json": false` ➔ 발음 텍스트 저장) |
 
 ---
 
