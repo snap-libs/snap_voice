@@ -1,11 +1,9 @@
 # 🌐 SNAP HTTP REST API Reference Manual
 
-[English](SNAP_REST_API_MANUAL.md) | [한국어](SNAP_REST_API_MANUAL_KO.md)
-
 > **📌 Document Guidance**  
 > * **This Document (`SNAP_REST_API_MANUAL.md`):** Cloud-based **Web / Server HTTP REST API (FastAPI, JSON Endpoints)** Reference Specification.  
-> * **Korean Version (한국어 매뉴얼):** Please refer to [`SNAP_REST_API_MANUAL_KO.md`](SNAP_REST_API_MANUAL_KO.md).  
-> * **C/C++ Native SDK:** For embedded C-API headers, DLL/SO, and memory management, please refer to [`SNAP_SDK_API_MANUAL.md`](SNAP_SDK_API_MANUAL.md).
+> * **Korean Version (한국어 매뉴얼):** Please refer to `SNAP_REST_API_MANUAL_KO.md`.  
+> * **C/C++ Native SDK:** For embedded C-API headers, DLL/SO, and memory management, please refer to `SNAP_SDK_API_MANUAL.md`.
 
 ---
 
@@ -101,19 +99,22 @@ Perform neural context analysis, numeral expansion, loanword preservation, heter
 | `custom_dict` | `object` | `null` | Dynamic custom dictionary (`{"surface": "reading"}`) |
 | `config.lang` | `string` | `"ko"` | Target language code (`"ko"`, `"ja"`, `"en"`) |
 | `config.prosody_format` | `string` | `"tags"` | Prosody pause format: `"tags"` (`[P1]/[P2]/[P3]`), `"ssml"` (`<break .../>`), `"none"` |
-| `config.return_ipa` | `boolean` | `false` | Generate and return International Phonetic Alphabet (IPA) |
+| `config.return_ipa` | `boolean` | `false` | Generate and include International Phonetic Alphabet (`ipa`) in response |
+| `config.return_morphemes` | `boolean` | `false` | Include morphological analysis array (`morphemes`: `surface`, `pos`, `start`, `end` aligned to `normalized_text`) |
+| `config.return_pauses` | `boolean` | `false` | Include prosody pause metadata array (`pauses`: `char_offset`, `type`, `duration_ms`) |
+| `config.return_vowel_length` | `boolean` | `false` | (Korean) Include vowel length metadata array (`vowel_length`) |
 | `config.vowel_length` | `boolean` | `true` | (Korean) Enable vowel length colon notation (`:`) |
 | `config.unit_style` | `string` | `"standard"` | (Korean) Unit normalization style: `"standard"` (default e.g. 120km/h -> 백이십킬로미터), `"full"` (e.g. 백이십킬로미터퍼아워), `"short"` (colloquial e.g. 백이십키로, 70kg -> 칠십키로, 100% -> 백프로) |
 | `config.speech_style` | `string` | `"original"` | (Korean) Conversational speech style for endings and pronouns: `"original"` (default), `"haeyo"` (polite informal), `"banmal"` (casual), `"hapsio"` (formal polite) |
 | `config.pitch_accent` | `boolean` | `true` | (Japanese) Enable pitch accent kernel notation |
 | `config.script` | `string` | `"katakana"` | (Japanese) Orthography type: `"katakana"`, `"hiragana"`, `"romaji"` |
 
-> 💡 **3-Tier Cascading Configuration Hierarchy**:  
+> 💡 **3-Tier Cascading Configuration & On-Demand Response Optimization**:  
 > 1. **Default Preservation**: Any omitted field in `config` safely retains server defaults (`snap_config.json`).  
-> 2. **Selective Override**: Explicitly provided fields (`return_ipa`, `prosody_format`, etc.) surgically override settings for that request only.  
-> 3. **100% Backward Compatible**: Default calls (`{"text": "..."}`) work seamlessly without code changes.
+> 2. **On-Demand Payload Fields**: By default, responses include only the 3 core fields (`original_text`, `normalized_text`, `phonemes`) to minimize payload size. Optional metadata fields (`morphemes`, `pauses`, `vowel_length`, `ipa`) are included in the response only when explicitly requested via `config`.  
+> 3. **Normalized-Text Aligned Morphemes**: When `return_morphemes: true` is set, every item in `morphemes` (`surface`, `start`, `end`) is aligned to the post-normalization Korean `normalized_text` character (codepoint) offsets (`normalized_text[start:end] == surface`).
 
-#### Request Example (Request Body)
+#### Request Example 1 — Default Request (Request Body)
 ```json
 {
   "text": "NVIDIA RTX 4090 GPU에서 v1.2.0 C++ SDK를 100% 빌드 완료했습니다.",
@@ -123,25 +124,69 @@ Perform neural context analysis, numeral expansion, loanword preservation, heter
   "config": {
     "lang": "ko",
     "prosody_format": "tags",
-    "return_ipa": false,
     "vowel_length": true
   }
 }
 ```
 
-#### Response Example (Response Body - 200 OK)
+#### Response Example 1 — Default Response (Response Body - 200 OK)
 ```json
 {
   "success": true,
   "data": {
     "original_text": "NVIDIA RTX 4090 GPU에서 v1.2.0 C++ SDK를 100% 빌드 완료했습니다.",
-    "normalized_text": "엔비디아 알티엑스 사공구공 지피유에서 브이 일쩜이쩜영 씨플러스플러스 에스디케이를 백퍼센트 빌드 완료했습니다.",
-    "phonemes": "엔비디아 알티엑쓰 사공구공 지피유에서[P1] 브이 일쩌미쩌명 씨플러스플러스 에스디케이를[P2] 백퍼센트 빌드 왈료핻씀니다.[P3]",
-    "ipa": null,
-    "pos_tags": null
+    "normalized_text": "엔비디아 알티엑스 사공구공 지피유에서 버전 일쩜이쩜영 씨플러스플러스 에스디케이를 백퍼센트 빌드 완료했습니다.",
+    "phonemes": "엔비디아 알티엑쓰 사공구공 지피유에서[P1] 버전 일쩌미쩌명 씨플러스플러스 에스디케이를[P2] 백퍼센트 빌드 왈료핻씀니다.[P3]"
   },
   "meta": {
     "latency_ms": 21.45,
+    "engine_version": "1.0.0"
+  }
+}
+```
+
+#### Request Example 2 — Requesting `morphemes` and `pauses` Metadata
+```json
+{
+  "text": "NVIDIA RTX 4090 GPU에서 100% 빌드 완료했습니다.",
+  "config": {
+    "lang": "ko",
+    "prosody_format": "tags",
+    "return_morphemes": true,
+    "return_pauses": true
+  }
+}
+```
+
+#### Response Example 2 — With `morphemes` and `pauses` (Response Body - 200 OK)
+```json
+{
+  "success": true,
+  "data": {
+    "original_text": "NVIDIA RTX 4090 GPU에서 100% 빌드 완료했습니다.",
+    "normalized_text": "엔비디아 알티엑스 사공구공 지피유에서 백퍼센트 빌드 완료했습니다.",
+    "phonemes": "엔비디아 알티엑쓰 사공구공 지피유에서[P1] 백퍼센트 빌드 왈료핻씀니다.[P3]",
+    "morphemes": [
+      { "surface": "엔비디아", "pos": "NNG", "start": 0, "end": 4 },
+      { "surface": "알티엑스", "pos": "NNG", "start": 5, "end": 9 },
+      { "surface": "사공구공", "pos": "SN", "start": 10, "end": 14 },
+      { "surface": "지피유", "pos": "NNG", "start": 15, "end": 18 },
+      { "surface": "에서", "pos": "JKB", "start": 18, "end": 20 },
+      { "surface": "백", "pos": "SN", "start": 21, "end": 22 },
+      { "surface": "퍼센트", "pos": "SY", "start": 22, "end": 25 },
+      { "surface": "빌드", "pos": "NNG", "start": 26, "end": 28 },
+      { "surface": "완료", "pos": "VV", "start": 29, "end": 31 },
+      { "surface": "했", "pos": "VV+EP", "start": 31, "end": 32 },
+      { "surface": "습니다", "pos": "EF", "start": 32, "end": 35 },
+      { "surface": ".", "pos": "SF", "start": 35, "end": 36 }
+    ],
+    "pauses": [
+      { "char_offset": 20, "type": "P1", "duration_ms": 150 },
+      { "char_offset": 36, "type": "P3", "duration_ms": 500 }
+    ]
+  },
+  "meta": {
+    "latency_ms": 21.12,
     "engine_version": "1.0.0"
   }
 }
@@ -151,7 +196,7 @@ Perform neural context analysis, numeral expansion, loanword preservation, heter
 
 ### 3.4. Batched Sentence Normalization (`POST /v1/normalize/batch`)
 
-Process multiple sentences in a single batched HTTP transaction using SIMD-vectorized neural forward passes.
+Process multiple sentences in a single batched HTTP transaction using SIMD-vectorized neural forward passes. Like `/v1/normalize`, setting `return_morphemes`, `return_pauses`, `return_vowel_length`, or `return_ipa` in `config` includes those fields in each `results[i]` item.
 
 * **Method:** `POST`
 * **Path:** `/v1/normalize/batch`
@@ -183,21 +228,18 @@ Process multiple sentences in a single batched HTTP transaction using SIMD-vecto
       "original_text": "제1차 회의는 오전 10시 15분에 시작합니다.",
       "normalized_text": "제일차 회의는 오전 열시 십오분에 시작합니다.",
       "phonemes": "제일차 회이는 오전 열시 시보부네 시자캄니다.",
-      "ipa": null,
       "latency_ms": 7.12
     },
     {
       "original_text": "물가 안정을 위해 500억 원의 재정을 투입합니다.",
       "normalized_text": "물가 안정을 위해 오백억 원의 재정을 투입합니다.",
       "phonemes": "물가 안정을 위해 오배걱 워네 재정을 투이팜니다.",
-      "ipa": null,
       "latency_ms": 7.12
     },
     {
       "original_text": "서울에서 부산까지 KTX로 2시간 15분 걸립니다.",
       "normalized_text": "서울에서 부산까지 케이티엑스로 두시간 십오분 걸립니다.",
       "phonemes": "서우레서 부산까지 케이티엑스로 두시간 시보분 걸림니다.",
-      "ipa": null,
       "latency_ms": 7.12
     }
   ],
@@ -275,7 +317,7 @@ curl -X POST "https://snap-api-673324870645.asia-northeast3.run.app/v1/normalize
        "config": {
          "lang": "ko",
          "prosody_format": "tags",
-         "return_ipa": false
+         "return_morphemes": true
        }
      }'
 ```
@@ -289,12 +331,13 @@ payload = {
     "text": "2026년 8월 24일 오후 3시 30분에 2호선 3번 출구에서 만나요.",
     "config": {
         "prosody_format": "tags",
-        "return_ipa": False
+        "return_morphemes": True
     }
 }
 resp = requests.post(url, json=payload)
 data = resp.json()
 print("Phonemes:", data["data"]["phonemes"])
+print("Morphemes:", data["data"]["morphemes"])
 ```
 
 ### JavaScript / Node.js (`fetch`)

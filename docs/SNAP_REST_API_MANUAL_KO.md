@@ -1,11 +1,8 @@
-# 🌐 SNAP HTTP REST API 연동 매뉴얼 (Reference Manual)
-
-[English](SNAP_REST_API_MANUAL.md) | [한국어](SNAP_REST_API_MANUAL_KO.md)
+# 🌐 SNAP HTTP REST API Reference Manual
 
 > **📌 문서 구분 안내**  
-> * **본 문서 (`SNAP_REST_API_MANUAL_KO.md`):** 클라우드 기반 **웹/서버 HTTP REST API (FastAPI, JSON 엔드포인트)** 한국어 연동 규격서입니다.  
-> * **영문 매뉴얼 (English):** [`SNAP_REST_API_MANUAL.md`](SNAP_REST_API_MANUAL.md)를 참조하세요.  
-> * **C/C++ 네이티브 라이브러리 연동:** C-API 임베디드 DLL/SO 헤더 연동은 [`SNAP_SDK_API_MANUAL_KO.md`](SNAP_SDK_API_MANUAL_KO.md)를 참조하세요.
+> * **본 문서 ([`SNAP_REST_API_MANUAL.md`](file:///c:/work/snap/SNAP_REST_API_MANUAL.md)):** 클라우드 기반 **웹/서버 HTTP REST API (FastAPI, JSON 엔드포인트)** 연동 규격서입니다.  
+> * **C/C++ 네이티브 라이브러리 연동:** C-API 임베디드 DLL/SO 헤더 연동은 [`SNAP_SDK_API_MANUAL.md`](file:///c:/work/snap/SNAP_SDK_API_MANUAL.md)를 참조하세요.
 
 ---
 
@@ -101,20 +98,22 @@ API 서버의 동작 상태 및 C++ 모델 엔진의 적재 여부를 확인합�
 | `custom_dict` | `object` | `null` | 사용자 동적 커스텀 사전 (`{"원문단어": "치환발음"}`) |
 | `config.lang` | `string` | `"ko"` | 대상 언어 코드 (`"ko"`, `"ja"`, `"en"`) |
 | `config.prosody_format` | `string` | `"tags"` | 운율 쉼 표기 방식: `"tags"` (`[P1]/[P2]/[P3]`), `"ssml"` (`<break .../>`), `"none"` |
-| `config.return_ipa` | `boolean` | `false` | 국제 음성 기호(IPA) 생성 및 반환 여부 |
+| `config.return_ipa` | `boolean` | `false` | 국제 음성 기호(IPA) 생성 및 응답 포함 여부 (`true`일 때만 `ipa` 필드 반환) |
+| `config.return_morphemes` | `boolean` | `false` | 형태소 분석 및 품사 태깅 배열(`morphemes`) 응답 포함 여부 (`normalized_text` 한글 글자 오프셋 및 `surface` 기준) |
+| `config.return_pauses` | `boolean` | `false` | 운율 쉼 메타데이터 배열(`pauses`: `char_offset`, `type`, `duration_ms`) 응답 포함 여부 |
+| `config.return_vowel_length` | `boolean` | `false` | (한국어 전용) 장음 위치 메타데이터 배열(`vowel_length`) 응답 포함 여부 |
 | `config.vowel_length` | `boolean` | `true` | (한국어 전용) 모음 장단음 표기 여부 (`true`: '밤:' / `false`: '밤') |
 | `config.unit_style` | `string` | `"standard"` | (한국어 전용) 단위 정규화 표기 스타일: `"standard"` (표준 표기), `"full"` (외래어 풀네임), `"short"` (구어체 축약 표기) |
 | `config.speech_style` | `string` | `"original"` | (한국어 전용) 대화체 문체 및 어미 변환: `"original"` (원문 유지), `"haeyo"` (해요체), `"banmal"` (반말체), `"hapsio"` (하십시오체) |
-| `config.pronunciation_style` | `string` | `"modern_standard"` | (한국어 전용) 발음 스타일 모드: `"modern_standard"` (현대 표준음), `"strict_standard"` (엄격 규범음), `"colloquial"` (일상 구어체). 상세는 [발음 스타일 가이드](ko/PRONUNCIATION_STYLES_GUIDE.md) 참조 |
 | `config.pitch_accent` | `boolean` | `true` | (일본어 전용) 악센트 핵 표기 여부 |
 | `config.script` | `string` | `"katakana"` | (일본어 전용) 출력 문자 체계: `"katakana"`, `"hiragana"`, `"romaji"` |
 
-> 💡 **3단계 캐스케이딩 설정 계층 (Cascading Configuration Hierarchy)**:  
+> 💡 **3단계 캐스케이딩 설정 및 On-Demand 응답 최적화**:  
 > 1. **기본값 보존**: 사용자가 `config`에 특정 필드를 생략하면, 서버 파일(`snap_config.json`)의 안전 기본값이 유지됩니다.  
-> 2. **선택적 오버라이드**: 사용자가 넘겨준 필드(`return_ipa`, `prosody_format` 등)만 해당 요청에 한하여 외과적으로 덮어씌워집니다.  
-> 3. **완벽한 하위 호환**: 기존 호출 방식(`{"text": "..."}`)은 아무런 코드 수정 없이 그대로 100% 호환됩니다.
+> 2. **요청 필드만 선택적 반환 (On-Demand Payload)**: 기본 응답은 핵심 3필드(`original_text`, `normalized_text`, `phonemes`)만 반환하여 네트워크 페이로드를 최소화합니다. `return_morphemes`, `return_pauses`, `return_vowel_length`, `return_ipa`를 `true`로 지정한 경우에만 해당 필드가 응답 JSON에 포함됩니다.  
+> 3. **정규화 후 한글 기준 형태소 오프셋**: `return_morphemes: true` 설정 시 반환되는 `morphemes`의 `surface`, `start`, `end`는 영문·숫자·기호가 모두 한글로 변환된 `normalized_text`의 유니코드 글자(Codepoint) 오프셋과 100% 일치합니다 (`normalized_text[start:end] == surface`).
 
-#### 요청 예시 (Request Body)
+#### 요청 예시 1 — 기본 호출 (Request Body)
 ```json
 {
   "text": "2026년 8월 24일 2호선 3번 출구에서 만나 커피 2잔을 마셨습니다. ChatGPT와 LG CNS를 사용합니다.",
@@ -125,25 +124,69 @@ API 서버의 동작 상태 및 C++ 모델 엔진의 적재 여부를 확인합�
   "config": {
     "lang": "ko",
     "prosody_format": "tags",
-    "return_ipa": false,
     "vowel_length": true
   }
 }
 ```
 
-#### 응답 예시 (Response Body - 200 OK)
+#### 응답 예시 1 — 기본 응답 (Response Body - 200 OK)
 ```json
 {
   "success": true,
   "data": {
     "original_text": "2026년 8월 24일 2호선 3번 출구에서 만나 커피 2잔을 마셨습니다. ChatGPT와 LG CNS를 사용합니다.",
     "normalized_text": "이천이십육년 팔월 이십사일 이호선 삼번 출구에서 만나 커피 두잔을 마셨습니다. 챗지피티와 엘지씨엔에스를 사용합니다.",
-    "phonemes": "이처니심늉년[P1] 파뤌 이십싸일[P2] 이호선 삼번 출구에서 만나[P1] 커피 두자늘 마셛씀니다.[P3] 챋찌피티와[P1] 엘지씨에네스를 사용함니다.[P3]",
-    "ipa": "[itɕʰʌnisimnjuŋnjʌn pʰaɾwʌɭ isip̚s͈aiɭ ihosʌn sampʌn tɕʰuɭkuesʌ manna kʰʌpʰi tudʑanɯɭ masʰjʌts͈ɯmnida. tɕʰɛt̚tɕ͈ipʰitʰiwa eɭtɕis͈ienesɯɾɯɭ sajoŋhamnita.]",
-    "pos_tags": null
+    "phonemes": "이처니심늉년[P1] 파뤌 이십싸일[P2] 이호선 삼번 출구에서 만나[P1] 커피 두자늘 마셛씀니다.[P3] 챋찌피티와[P1] 엘지씨에네스를 사용함니다.[P3]"
   },
   "meta": {
     "latency_ms": 22.45,
+    "engine_version": "1.0.0"
+  }
+}
+```
+
+#### 요청 예시 2 — 형태소(`morphemes`) 및 운율 쉼(`pauses`) 메타데이터 포함 요청
+```json
+{
+  "text": "NVIDIA RTX 4090 GPU에서 100% 빌드 완료했습니다.",
+  "config": {
+    "lang": "ko",
+    "prosody_format": "tags",
+    "return_morphemes": true,
+    "return_pauses": true
+  }
+}
+```
+
+#### 응답 예시 2 — 형태소 및 쉼 메타데이터 포함 응답 (Response Body - 200 OK)
+```json
+{
+  "success": true,
+  "data": {
+    "original_text": "NVIDIA RTX 4090 GPU에서 100% 빌드 완료했습니다.",
+    "normalized_text": "엔비디아 알티엑스 사공구공 지피유에서 백퍼센트 빌드 완료했습니다.",
+    "phonemes": "엔비디아 알티엑쓰 사공구공 지피유에서[P1] 백퍼센트 빌드 왈료핻씀니다.[P3]",
+    "morphemes": [
+      { "surface": "엔비디아", "pos": "NNG", "start": 0, "end": 4 },
+      { "surface": "알티엑스", "pos": "NNG", "start": 5, "end": 9 },
+      { "surface": "사공구공", "pos": "SN", "start": 10, "end": 14 },
+      { "surface": "지피유", "pos": "NNG", "start": 15, "end": 18 },
+      { "surface": "에서", "pos": "JKB", "start": 18, "end": 20 },
+      { "surface": "백", "pos": "SN", "start": 21, "end": 22 },
+      { "surface": "퍼센트", "pos": "SY", "start": 22, "end": 25 },
+      { "surface": "빌드", "pos": "NNG", "start": 26, "end": 28 },
+      { "surface": "완료", "pos": "VV", "start": 29, "end": 31 },
+      { "surface": "했", "pos": "VV+EP", "start": 31, "end": 32 },
+      { "surface": "습니다", "pos": "EF", "start": 32, "end": 35 },
+      { "surface": ".", "pos": "SF", "start": 35, "end": 36 }
+    ],
+    "pauses": [
+      { "char_offset": 20, "type": "P1", "duration_ms": 150 },
+      { "char_offset": 36, "type": "P3", "duration_ms": 500 }
+    ]
+  },
+  "meta": {
+    "latency_ms": 21.12,
     "engine_version": "1.0.0"
   }
 }
@@ -153,7 +196,7 @@ API 서버의 동작 상태 및 C++ 모델 엔진의 적재 여부를 확인합�
 
 ### 3.4. 배치 문장 정규화 (`POST /v1/normalize/batch`)
 
-복수의 문장을 단일 HTTP 트랜잭션으로 묶어 고속 병렬 처리합니다.
+복수의 문장을 단일 HTTP 트랜잭션으로 묶어 고속 병렬 처리합니다. 단일 요청과 동일하게 `config`에서 `return_morphemes`, `return_pauses`, `return_vowel_length`, `return_ipa`를 지정하면 각 `results[i]` 항목에 해당 필드가 포함됩니다.
 
 * **Method:** `POST`
 * **Path:** `/v1/normalize/batch`
@@ -185,21 +228,18 @@ API 서버의 동작 상태 및 C++ 모델 엔진의 적재 여부를 확인합�
       "original_text": "제1차 회의는 오전 10시 15분에 시작합니다.",
       "normalized_text": "제일차 회의는 오전 열시 십오분에 시작합니다.",
       "phonemes": "제일차 회이는 오전 열시 시보부네 시자캄니다.",
-      "ipa": null,
       "latency_ms": 21.39
     },
     {
       "original_text": "물가 안정을 위해 500억 원의 재정을 투입합니다.",
       "normalized_text": "물가 안정을 위해 오백억 원의 재정을 투입합니다.",
       "phonemes": "물가 안정을 위해 오배걱 워네 재정을 투이팜니다.",
-      "ipa": null,
       "latency_ms": 20.88
     },
     {
       "original_text": "서울에서 부산까지 KTX로 2시간 15분 걸립니다.",
       "normalized_text": "서울에서 부산까지 케이티엑스로 두시간 십오분 걸립니다.",
       "phonemes": "서우레서 부산까지 케이티엑스로 두시간 시보분 걸림니다.",
-      "ipa": null,
       "latency_ms": 21.05
     }
   ],
@@ -244,17 +284,6 @@ API 서버의 동작 상태 및 C++ 모델 엔진의 적재 여부를 확인합�
 | **해요체** | `"haeyo"` | `도착했어요`, `학생이에요` / `의사예요`, `어디 가요?`, `앉으세요!` | `그건`, `뭘`, `저는` (부드러운 존댓말) |
 | **반말체** | `"banmal"` | `도착했어`, `학생이야` / `의사야`, `어디 가?`, `앉아!` | `그건`, `뭘`, `나는`, `내가`, `우리` (격식 하향 인칭 일치) |
 | **하십시오체** | `"hapsio"` | `도착했습니다`, `학생입니다`, `어디 가십니까?`, `앉으십시오!` | `그건`, `뭘`, `저는` (정중한 격식체) |
-
-### 4.5. 한국어 3대 발음 스타일 (`pronunciation_style`)
-뉴스, 대화형 챗봇, 역사물 등 발화 시나리오에 맞추어 음운 변동(사잇소리, 외래어 관용음, 'ㅎ' 연음, 단모음화)의 적용 수준을 3단계로 제어합니다.
-
-| 모드 | 설정값 | 효과 | 버스 | 지혜 | 말했다 | 일하다 | 용도 |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **현대 표준음** | `"modern_standard"` (기본값) | `효꽈` | `뻐스` | `지혜` | `말핻따` | `일하다` | 뉴스 브리핑, 오디오북, AI 비서 표준 |
-| **엄격 규범음** | `"strict_standard"` | `효과` | `버스` | `지혜` | `말핻따` | `일하다` | 역사극, 고문서 낭독, 법률 조문 |
-| **일상 구어체** | `"colloquial"` | `효꽈` | `뻐스` | `지헤` | `마랟따` | `이라다` | 캐릭터 챗봇, 일상 회화, 드라마 |
-
-> 📖 **상세 가이드 문서**: 국립국어원 표준 발음법 근거 및 31개 대표 단어 대조표는 [docs/ko/PRONUNCIATION_STYLES_GUIDE.md](ko/PRONUNCIATION_STYLES_GUIDE.md)를 참조하십시오.
 
 ---
 
