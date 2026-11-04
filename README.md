@@ -7,6 +7,12 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 
 ---
 
+## 📢 What's New
+
+* **[2026.11.04] [SNAP Korean Preprocessing Engine v2.1.2 Update](docs/SNAP_UPDATE_NOTES.md)** ([한국어 업데이트 노트](docs/SNAP_UPDATE_NOTES_KO.md)) — Added 20 context-dependent heteronyms (`-가(價)` & `-권(券·圈·權·拳)`), reinforced pronunciation & loanword edge cases, and updated SNAP SDK to support diverse applications.
+
+---
+
 ## 🔗 Key Documentation & Live Demos
 
 ### 🚀 SNAP v2.0 (Korean)

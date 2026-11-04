@@ -1,40 +1,45 @@
-# SNAP C/C++ Native SDK API Reference Manual
+# SNAP C/C++ Native SDK API Reference Manual (`v2.1.2`)
 
 > **📌 Document Guidance**  
-> * **This Document ([`SNAP_SDK_API_MANUAL.md`](file:///c:/work/snap/SNAP_SDK_API_MANUAL.md)):** C/C++ Native Embedded Library (Headers, DLL/SO, Memory Management) Reference Specification.  
-> * **Korean Version (한국어 매뉴얼):** Please refer to [`SNAP_SDK_API_MANUAL_KO.md`](file:///c:/work/snap/SNAP_SDK_API_MANUAL_KO.md).  
-> * **Web / Cloud HTTP REST API:** For cloud JSON endpoints, please refer to [`SNAP_REST_API_MANUAL.md`](file:///c:/work/snap/SNAP_REST_API_MANUAL.md).
+> * **This Document (`SNAP_SDK_API_MANUAL.md`):** C/C++ Native Embedded Library (Headers, DLL/SO, `.spak` Encrypted Container, Memory Management) Reference Specification.  
+> * **Korean Version (한국어 매뉴얼):** Please refer to `SNAP_SDK_API_MANUAL_KO.md`.  
+> * **Web / Cloud HTTP REST API:** For cloud JSON endpoints, please refer to `SNAP_REST_API_MANUAL.md`.
 
-> Header: `include/snap/snap_api.h` & `include/snap/snap_version.h`  
-> Library: `snap_cpp.dll` / `libsnap_cpp.so` / `libsnap_cpp.dylib`
+> Header: `include/snap_api.h` (standalone) & `include/snap/snap_api.h` (backward-compatible)  
+> Library: `snap_cpp.dll` / `libsnap_cpp.so` / `libsnap_cpp.dylib` (Pure C ABI, 26 exported symbols)  
+> Asset Pack: `packs/snap_ko.spak` (`.spak` v1 ChaCha20-Poly1305 encrypted container)
 
 ---
 
 ## Overview
 
-`snap_cpp` exposes a minimal C-linkage API built on an **opaque handle** pattern.
-Each call to `snap_create()` returns an independent engine instance, enabling
-multiple languages to run concurrently in a single process without shared state
-or mutex contention.
+`snap_cpp` (`v2.1.2`) exposes a pure C-linkage ABI built on an **opaque handle** pattern with **100% in-memory `.spak` encrypted asset loading (Zero-Disk)**.
+Each call to `snap_create()` returns an independent engine instance, enabling multiple languages to run concurrently in a single process without shared state or mutex contention.
 
 **Lifecycle**
 
 ```
-snap_create()
+snap_set_license()  (Optional — v2.1.2 defaults to offline-allow stub)
     │
-    ├── snap_process()    ──► snap_free(result)
-    ├── snap_normalize()  ──► snap_free(result)
+snap_create("packs/snap_ko.spak", "ko")  ──► on NULL: snap_get_last_error()
+    │
+    ├── snap_process()            ──► snap_free(result)
+    ├── snap_process_ext()        ──► snap_free(result)
+    ├── snap_get_bert_features()  ──► snap_free_tensor(ptr)
     │
 snap_destroy()
 ```
 
-**Path Resolution**: `snap_create(weights_dir, lang)` resolves model assets by checking:
-1. `weights_dir` (Explicit argument — Absolute or Relative path)
-2. `SNAP_HOME` environment variable (if `weights_dir` is `NULL` or `""`)
-3. Current working directory (`.`)
+**Asset Loading Modes (`weights_dir`)**: `snap_create(weights_dir, lang)` seamlessly supports both encrypted `.spak` single-file packs and legacy directory trees:
+1. **Encrypted `.spak` Container (Recommended for SDK Deployment)**: Pass a `.spak` file path (e.g., `"packs/snap_ko.spak"`). All ONNX backbones, probing heads, tokenizers, and lexicons are authenticated via RFC 8439 `ChaCha20-Poly1305` AEAD, loaded directly into RAM (`CreateSessionFromArray`), and temporary plaintext buffers are immediately wiped via `SecureZero` (**0 temporary files on disk**).
+2. **Explicit Directory Path**: Pass an unpacked workspace/models root or language directory path.
+3. **Environment Fallback**: Reads `SNAP_HOME` (or `.`) if `weights_dir` is `NULL` or `""`.
 
-**Memory ownership rule**: Every non-null pointer returned by `snap_process()` or `snap_normalize()` is a heap-allocated buffer owned by the caller. It **must** be released exactly once using `snap_free()`.  
-*(Note: Prebuilt binaries use static CRT linkage `/MT`. Returning pointers are managed within the DLL's internal heap. Always release buffers via `snap_free()` to prevent cross-boundary heap corruption).*
+> **⚠️ Windows 11 24H2+ Deployment Note:**  
+> Windows 11 24H2+ includes an older `C:\Windows\System32\onnxruntime.dll` (`v1.17.1`). Always place the SDK's `snap_cpp.dll` and `onnxruntime.dll` (`v1.18.1`) **in the same directory as your host `.exe`** so Windows loads the SDK's ONNX Runtime first.
+
+**Memory ownership rule**: Every non-null pointer returned by `snap_process*()` or `snap_normalize()` is a heap-allocated buffer owned by the caller and **must** be released via `snap_free()`. Tensor pointers returned by `snap_get_bert_features()` **must** be released via `snap_free_tensor()`.  
+*(Note: Prebuilt binaries use static runtime linkage — `/MT` on Windows, `-static-libstdc++ -static-libgcc` on Linux).*
 
 ---
 
@@ -44,7 +49,7 @@ snap_destroy()
 
 ### `snap_create`
 
-Allocate and initialize a SNAP engine instance for one language (loads BERT backbone and neural probing heads).
+Allocate and initialize a SNAP engine instance for one language from an encrypted `.spak` file or weights directory.
 
 ```c
 SNAP_API void* snap_create(const char* weights_dir, const char* lang);
@@ -54,7 +59,7 @@ SNAP_API void* snap_create(const char* weights_dir, const char* lang);
 
 | Name | Type | Description |
 |:---|:---|:---|
-| `weights_dir` | `const char*` | Path to weights root or language directory (UTF-8). If `NULL` or `""`, falls back to reading the `SNAP_HOME` environment variable. If an explicit path is provided, it **overrides** `SNAP_HOME`. |
+| `weights_dir` | `const char*` | Path to an encrypted `.spak` container file (e.g., `"packs/snap_ko.spak"`) **or** unpacked weights directory (UTF-8). If `NULL` or `""`, falls back to `SNAP_HOME`. |
 | `lang` | `const char*` | Language code (`"ko"`, `"ja"`, `"en"`, case-insensitive). |
 
 **Return value**
@@ -62,25 +67,53 @@ SNAP_API void* snap_create(const char* weights_dir, const char* lang);
 | Value | Meaning |
 |:---|:---|
 | non-null `void*` | Success — opaque handle to the engine instance |
-| `NULL` | Failure — invalid path, missing model files (`model_index.json`), or initialization exception |
+| `NULL` | Failure — missing path, `.spak` AEAD authentication failure (tampered/corrupted pack), or initialization error. Call `snap_get_last_error()` for details. |
 
 **Notes**
-- **Recommended Usage (`SNAP_HOME`)**:
+- **Recommended SDK Usage (`.spak` Zero-Disk Mode)**:
   ```cpp
-  void* handle = snap_create(NULL, "ko"); // Recommended: Uses SNAP_HOME environment variable and auto EP
+  void* handle = snap_create("packs/snap_ko.spak", "ko");
+  if (!handle) {
+      fprintf(stderr, "Init error: %s\n", snap_get_last_error());
+  }
   ```
 - **Multilingual Concurrent Setup**:
   ```cpp
-  void* handle_ko = snap_create(NULL, "ko");
-  void* handle_ja = snap_create(NULL, "ja");
-  void* handle_en = snap_create(NULL, "en");
+  void* handle_ko = snap_create("packs/snap_ko.spak", "ko");
+  void* handle_ja = snap_create("packs/snap_ja.spak", "ja");
+  void* handle_en = snap_create("packs/snap_en.spak", "en");
   ```
+
+---
+
+### `snap_get_last_error`
+
+Retrieve the most recent initialization, `.spak` AEAD verification, or inference error message recorded on the current thread.
+
+```c
+SNAP_API const char* snap_get_last_error(void);
+```
+
+**Return value**: Thread-local null-terminated UTF-8 string describing the last error (or `""` if no error occurred). **Do NOT pass this pointer to `snap_free()`.**
+
+---
+
+### `snap_set_license`
+
+Set or verify an SDK license key prior to calling `snap_create()`.
+
+```c
+SNAP_API int snap_set_license(const char* license_key);
+```
+
+**Return value**: `0` on valid/accepted license, non-zero error code on rejection.  
+*(Note: In `v2.1.2`, offline default-allow stub mode is active; passing `NULL`, `""`, or any token returns `0`).*
 
 ---
 
 ### `snap_create_device`
 
-Allocate and initialize a SNAP engine instance with explicit target device / Execution Provider (EP).
+Allocate and initialize a SNAP engine instance (`.spak` or directory) with explicit target device / Execution Provider (EP).
 
 ```c
 SNAP_API void* snap_create_device(const char* weights_dir, const char* lang, const char* device);
@@ -90,7 +123,7 @@ SNAP_API void* snap_create_device(const char* weights_dir, const char* lang, con
 
 | Name | Type | Description |
 |:---|:---|:---|
-| `weights_dir` | `const char*` | Path to weights root or language directory (UTF-8). Falls back to `SNAP_HOME` if `NULL` or `""`. |
+| `weights_dir` | `const char*` | Path to `.spak` file or weights directory (UTF-8). Falls back to `SNAP_HOME` if `NULL` or `""`. |
 | `lang` | `const char*` | Language code (`"ko"`, `"ja"`, `"en"`). |
 | `device` | `const char*` | Target device / Execution Provider: `"auto"` (default), `"cuda"` (or `"cuda:0"`), `"directml"`, `"coreml"`, `"openvino"`, or `"cpu"`. |
 
@@ -532,18 +565,18 @@ SNAP_API void snap_destroy(void* handle);
 
 ---
 
-## Versioning & ABI Compatibility Functions (`snap_version.h`)
+## Versioning & ABI Compatibility Functions (`snap_api.h` / `snap_version.h`)
 
 ---
 
 ### `SNAP_VERSION_*` Compile-time Macros
 
 ```c
-#define SNAP_VERSION_MAJOR    1
-#define SNAP_VERSION_MINOR    0
-#define SNAP_VERSION_PATCH    0
-#define SNAP_VERSION_STRING   "1.0.0"
-#define SNAP_VERSION_NUMBER   10000 // (MAJOR * 10000 + MINOR * 100 + PATCH)
+#define SNAP_VERSION_MAJOR    2
+#define SNAP_VERSION_MINOR    1
+#define SNAP_VERSION_PATCH    2
+#define SNAP_VERSION_STRING   "2.1.2"
+#define SNAP_VERSION_NUMBER   20102 // (MAJOR * 10000 + MINOR * 100 + PATCH)
 ```
 
 ---
@@ -555,7 +588,18 @@ Get the runtime shared library version string.
 ```c
 SNAP_API const char* snap_version(void);
 ```
-**Return value**: Static null-terminated version string (e.g. `"1.0.0"`). Do **not** pass to `snap_free()`.
+**Return value**: Static null-terminated version string (`"2.1.2"`). Do **not** pass to `snap_free()`.
+
+---
+
+### `snap_engine_version`
+
+Get the active language model index version string for `"ko"`, `"ja"`, or `"en"`.
+
+```c
+SNAP_API const char* snap_engine_version(const char* lang);
+```
+**Return value**: Static null-terminated engine version string (e.g., `"2.1.2"`). Do **not** pass to `snap_free()`.
 
 ---
 
@@ -566,7 +610,7 @@ Get runtime numeric version value for version comparison.
 ```c
 SNAP_API int snap_version_number(void);
 ```
-**Return value**: Integer version (e.g., `10000` for `1.0.0`).
+**Return value**: Integer version (`20102` for `2.1.2`).
 
 ---
 
@@ -601,9 +645,19 @@ SNAP_API const char* snap_version_verbose(void);
 
 ---
 
+### `snap_is_gpu_available`
+
+Query whether a hardware GPU/NPU Execution Provider is available on the current host (`true` / `false`).
+
+```c
+SNAP_API bool snap_is_gpu_available(void);
+```
+
+---
+
 ## Configuration & Engine Options (`snap_config.json`)
 
-The SNAP C++ Engine controls G2P output modes, SSML tags, target TTS engine adapters, and language-specific phonological rules via `models/snap_config.json` (or dynamic in-memory settings passed to `snap_process_ext`).
+The SNAP C++ Engine controls G2P output modes, SSML tags, target TTS engine adapters, and language-specific phonological rules via `models/snap_config.json` (embedded inside `.spak`, or overridden per sentence via `snap_process_ext`).
 
 ```json
 {
@@ -630,37 +684,37 @@ The SNAP C++ Engine controls G2P output modes, SSML tags, target TTS engine adap
 | Key | Type | Default | Description |
 |:---|:---|:---|:---|
 | `to_ssml` | `bool` | `false` | When `true`, outputs standard W3C SSML tags (`<break strength="..."/>` for Korean pauses, `<phoneme alphabet="ipa" ph="...">word</phoneme>` for English). When `false`, SNAP outputs direct phonetic text. |
-| `to_ipa` | `bool` | `false` | Enables International Phonetic Alphabet (IPA) output string transcription (e.g. `[aɪ rɛd ðə bʊk...]`). |
+| `to_ipa` | `bool` | `false` | Enables International Phonetic Alphabet (IPA) output string transcription (e.g. `[maɾɯl tʰako...]`). |
 | `vowel_length` | `bool` | `false` | Korean vowel length notation (`:`). |
 | `script` | `string` | `"katakana"` | Japanese script output (`"katakana"`, `"hiragana"`, or `"romaji"`). |
 | `pitch_accent` | `bool` | `false` | Japanese pitch accent contour marking (`^` rise, `]` drop). |
 
 ---
 
-## Complete C++ Integration Example
+## Complete C++ Integration Example (`.spak` Zero-Disk Mode)
 
 ```cpp
 #include <iostream>
-#include "snap/snap_api.h"
-#include "snap/snap_version.h"
+#include "snap_api.h"
 
 int main() {
-    // 0. Verify SDK Version
+    // 0. Verify SDK Version & Optional License Hook
     std::cout << "SNAP SDK Version: " << snap_version() << std::endl;
     if (!snap_version_check(SNAP_VERSION_MAJOR, SNAP_VERSION_MINOR)) {
         std::cerr << "ABI incompatibility detected!\n";
         return 1;
     }
+    snap_set_license("OPTIONAL-LICENSE-KEY");
 
-    // 1. Initialize SNAP engine for Korean using SNAP_HOME
-    void* handle = snap_create(NULL, "ko");
+    // 1. Initialize SNAP engine in RAM from encrypted .spak pack (Zero-Disk)
+    void* handle = snap_create("packs/snap_ko.spak", "ko");
     if (!handle) {
-        std::cerr << "Failed to initialize SNAP engine handle.\n";
+        std::cerr << "Init failed: " << snap_get_last_error() << "\n";
         return 1;
     }
 
     // 2. Perform context-aware text normalization & G2P processing
-    const char* input = "여기서 3번 버스를 타고 3번 가라타야 해.";
+    const char* input = "여기서 3번 버스를 타고 3번 갈아타야 해.";
     const char* result = snap_process(handle, input);
 
     if (result) {
@@ -679,9 +733,9 @@ int main() {
 
 ---
 
-## Advanced Backend Integration (For TTS Engines)
+## Advanced Backend Integration (For Neural TTS Engines e.g. `snap_piper`, VITS, MeloTTS)
 
-For deep tensor-level integration with neural TTS models (e.g. MeloTTS, VITS), SNAP SDK provides direct hidden-state export functions:
+For deep tensor-level integration with neural TTS models, SNAP SDK provides direct BERT hidden-state export and external hidden-state pipeline functions:
 
 ```c
 SNAP_API float* snap_get_bert_features(
@@ -694,5 +748,28 @@ SNAP_API float* snap_get_bert_features(
 );
 
 SNAP_API void snap_free_tensor(void* ptr);
+
+// Optional 2-stage GPU/CPU split pipeline APIs (include/snap/snap_pipeline_api.h)
+SNAP_API float* snap_get_bert_features_with_offsets(
+    void* handle,
+    const char* text_utf8,
+    int* out_seq_len,
+    int* out_hidden_dim,
+    size_t** out_offsets_flat,
+    int* out_offsets_count
+);
+
+SNAP_API const char* snap_process_with_hidden(
+    void* handle,
+    const char* text_utf8,
+    const float* hidden,
+    int seq_len,
+    int hdim,
+    const size_t* offsets_flat,
+    int offsets_count,
+    const char* options_json
+);
+
+SNAP_API void snap_free_offsets(size_t* ptr);
 ```
-*(Note: Internal integration API designed for bypassing PyTorch BERT downloads in open-source speech backends. General application developers should use `snap_process` or `snap_process_ext`.)*
+*(Note: Designed for acoustic TTS backends such as `snap_piper` to extract contextual BERT features directly in C++ without Python/PyTorch dependencies.)*

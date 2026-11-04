@@ -1,111 +1,126 @@
-# SNAP C/C++ Native SDK API Reference Manual
+# SNAP C/C++ Native SDK API 레퍼런스 매뉴얼 (`v2.1.2`)
 
 > **📌 문서 구분 안내**  
-> * **본 문서 ([`SNAP_SDK_API_MANUAL.md`](file:///c:/work/snap/SNAP_SDK_API_MANUAL.md)):** C/C++ 네이티브 임베디드 라이브러리(헤더, DLL/SO, 메모리 관리) 연동 규격서입니다.  
-> * **웹/클라우드 HTTP REST API 연동:** JSON 엔드포인트 웹 API 규격은 [`SNAP_REST_API_MANUAL.md`](file:///c:/work/snap/SNAP_REST_API_MANUAL.md)를 참조하세요.
+> * **본 문서 (`SNAP_SDK_API_MANUAL_KO.md`):** C/C++ 네이티브 바이너리 SDK(단일 헤더, DLL/SO, `.spak` 암호화 에셋 컨테이너, 메모리 관리) 연동 규격서입니다.  
+> * **영문 매뉴얼 (English):** `SNAP_SDK_API_MANUAL.md`를 참조하세요.  
+> * **웹/클라우드 HTTP REST API 연동:** JSON 엔드포인트 웹 API 규격은 `SNAP_REST_API_MANUAL_KO.md`를 참조하세요.
 
-> Header: `include/snap/snap_api.h` & `include/snap/snap_version.h`  
-> Library: `snap_cpp.dll` / `libsnap_cpp.so` / `libsnap_cpp.dylib`
+> 헤더: `include/snap_api.h` (단독 포함) 및 `include/snap/snap_api.h` (기존 경로 호환)  
+> 라이브러리: `snap_cpp.dll` / `libsnap_cpp.so` / `libsnap_cpp.dylib` (순수 C ABI 26개 심볼만 노출)  
+> 암호화 언어 팩: `packs/snap_ko.spak` (`.spak` v1 `ChaCha20-Poly1305` 단일 컨테이너)
 
 ---
 
-## Overview
+## 1. 개요
 
-`snap_cpp` exposes a minimal C-linkage API built on an **opaque handle** pattern.
-Each call to `snap_create()` returns an independent engine instance, enabling
-multiple languages to run concurrently in a single process without shared state
-or mutex contention.
+`snap_cpp`(`v2.1.2`)는 **불투명 핸들(Opaque Handle)** 기반의 순수 C ABI(`extern "C"`) 라이브러리이며, **100% 인메모리 `.spak` 복호화(Zero-Disk)**를 지원합니다.  
+`snap_create()`를 호출할 때마다 독립된 엔진 인스턴스가 생성되므로 단일 프로세스 내에서 다국어(`ko`, `ja`, `en`) 핸들을 공유 상태나 락 경합 없이 동시에 구동할 수 있습니다.
 
-**Lifecycle**
+### 라이프사이클
 
-```
-snap_create()
+```text
+snap_set_license()  (선택 — v2.1.2은 오프라인 기본 허용 스텁 모드)
     │
-    ├── snap_process()    ──► snap_free(result)
-    ├── snap_normalize()  ──► snap_free(result)
+snap_create("packs/snap_ko.spak", "ko")  ──► NULL 반환 시: snap_get_last_error() 확인
+    │
+    ├── snap_process()            ──► snap_free(result)
+    ├── snap_process_ext()        ──► snap_free(result)
+    ├── snap_get_bert_features()  ──► snap_free_tensor(ptr)
     │
 snap_destroy()
 ```
 
-**Path Resolution**: `snap_create(weights_dir, lang)` resolves model assets by checking:
-1. `weights_dir` (Explicit argument — Absolute or Relative path)
-2. `SNAP_HOME` environment variable (if `weights_dir` is `NULL` or `""`)
-3. Current working directory (`.`)
+### 에셋 로딩 방식 (`weights_dir`)
 
-**Memory ownership rule**: Every non-null pointer returned by `snap_process()` or `snap_normalize()` is a heap-allocated buffer owned by the caller. It **must** be released exactly once using `snap_free()`.  
-*(Note: Prebuilt binaries use static CRT linkage `/MT`. Returning pointers are managed within the DLL's internal heap. Always release buffers via `snap_free()` to prevent cross-boundary heap corruption).*
+`snap_create(weights_dir, lang)`는 단일 암호화 `.spak` 파일과 기존 폴더 구조를 동일한 인터페이스로 지원합니다:
+
+1. **암호화 `.spak` 단일 파일 모드 (SDK 배포 권장):** `"packs/snap_ko.spak"` 경로를 전달합니다. RFC 8439 `ChaCha20-Poly1305` AEAD 무결성 검증 후 ONNX 백본·헤드(`CreateSessionFromArray`)와 사전을 **100% RAM에서만 적재**하고, 임시 평문 버퍼는 즉시 `SecureZero`로 소거합니다(**디스크 임시 파일 생성 0개**).
+2. **명시적 디렉터리 모드:** 압축 해제된 가중치 루트 또는 언어 디렉터리 경로를 전달합니다.
+3. **환경변수 폴백:** `weights_dir`가 `NULL` 또는 `""`이면 `SNAP_HOME`(미설정 시 `.`)을 참조합니다.
+
+> **⚠️ Windows 11 24H2+ 배포 시 필수 유의사항**  
+> Windows 11 24H2 이상에는 구버전 `C:\Windows\System32\onnxruntime.dll`(`v1.17.1`)이 기본 탑재되어 있습니다. 반드시 호스트 실행 파일(`.exe`)과 **동일한 폴더**에 SDK의 `snap_cpp.dll`과 `onnxruntime.dll`(`v1.18.1`)을 함께 배치해야 SDK 전용 ONNX Runtime이 우선 로드됩니다.
+
+### 메모리 소유권 규칙
+
+- `snap_process*()` / `snap_normalize()`가 반환한 문자열 포인터는 반드시 **`snap_free()`**로 해제해야 합니다.
+- `snap_get_bert_features()`가 반환한 텐서 및 `word2ph` 포인터는 반드시 **`snap_free_tensor()`**로 해제해야 합니다.
+- `snap_version*()` 및 `snap_get_last_error()` 반환 포인터는 내부 정적/스레드 로컬 버퍼이므로 **`snap_free()`에 전달하면 안 됩니다.**
+- 사전 빌드 바이너리는 정적 런타임 링크(Windows `/MT`, Linux `-static-libstdc++ -static-libgcc`)를 사용하므로 호출자 측에서 `free()`/`delete`를 직접 호출하면 힙 손상이 발생합니다.
 
 ---
 
-## Core Inference Functions (`snap_api.h`)
-
----
+## 2. 핵심 추론 및 관리 API (`snap_api.h`)
 
 ### `snap_create`
 
-Allocate and initialize a SNAP engine instance for one language (loads BERT backbone and neural probing heads).
+단일 언어에 대한 SNAP 엔진 인스턴스를 생성하고 `.spak` 컨테이너(또는 디렉터리)에서 모델과 사전을 초기화합니다.
 
 ```c
 SNAP_API void* snap_create(const char* weights_dir, const char* lang);
 ```
 
-**Parameters**
-
-| Name | Type | Description |
+| 파라미터 | 타입 | 설명 |
 |:---|:---|:---|
-| `weights_dir` | `const char*` | Path to weights root or language directory (UTF-8). If `NULL` or `""`, falls back to reading the `SNAP_HOME` environment variable. If an explicit path is provided, it **overrides** `SNAP_HOME`. |
-| `lang` | `const char*` | Language code (`"ko"`, `"ja"`, `"en"`, case-insensitive). |
+| `weights_dir` | `const char*` | `.spak` 암호화 파일 경로(예: `"packs/snap_ko.spak"`) 또는 가중치 폴더 경로(UTF-8). `NULL`/`""`이면 `SNAP_HOME` 참조 |
+| `lang` | `const char*` | 언어 코드 (`"ko"`, `"ja"`, `"en"`, 대소문자 무관) |
 
-**Return value**
+- **반환값:** 성공 시 `void*` 엔진 핸들, 실패 시 `NULL` (원인은 `snap_get_last_error()`로 조회)
 
-| Value | Meaning |
-|:---|:---|
-| non-null `void*` | Success — opaque handle to the engine instance |
-| `NULL` | Failure — invalid path, missing model files (`model_index.json`), or initialization exception |
+```cpp
+void* handle = snap_create("packs/snap_ko.spak", "ko");
+if (!handle) {
+    fprintf(stderr, "초기화 실패: %s\n", snap_get_last_error());
+}
+```
 
-**Notes**
-- **Recommended Usage (`SNAP_HOME`)**:
-  ```cpp
-  void* handle = snap_create(NULL, "ko"); // Recommended: Uses SNAP_HOME environment variable and auto EP
-  ```
-- **Multilingual Concurrent Setup**:
-  ```cpp
-  void* handle_ko = snap_create(NULL, "ko");
-  void* handle_ja = snap_create(NULL, "ja");
-  void* handle_en = snap_create(NULL, "en");
-  ```
+---
+
+### `snap_get_last_error`
+
+현재 스레드에서 가장 최근에 발생한 초기화 실패, `.spak` AEAD 위변조 검증 실패 또는 추론 예외 메시지를 반환합니다.
+
+```c
+SNAP_API const char* snap_get_last_error(void);
+```
+
+- **반환값:** 스레드 로컬 UTF-8 에러 문자열 포인터 (에러가 없으면 `""`). **`snap_free()` 호출 금지.**
+
+---
+
+### `snap_set_license`
+
+`snap_create()` 호출 전 라이선스 키를 등록·검증합니다.
+
+```c
+SNAP_API int snap_set_license(const char* license_key);
+```
+
+- **반환값:** `0`이면 정상 승인, `0`이 아니면 거부 코드. *(참고: `v2.1.2`은 오프라인 기본 허용 스텁 모드로 동작하며 생략하거나 임의 문자열 전달 시 `0`을 반환합니다.)*
 
 ---
 
 ### `snap_create_device`
 
-Allocate and initialize a SNAP engine instance with explicit target device / Execution Provider (EP).
+실행 디바이스(Execution Provider)를 명시하여 엔진 인스턴스를 생성합니다.
 
 ```c
 SNAP_API void* snap_create_device(const char* weights_dir, const char* lang, const char* device);
 ```
 
-**Parameters**
-
-| Name | Type | Description |
+| 파라미터 | 타입 | 설명 |
 |:---|:---|:---|
-| `weights_dir` | `const char*` | Path to weights root or language directory (UTF-8). Falls back to `SNAP_HOME` if `NULL` or `""`. |
-| `lang` | `const char*` | Language code (`"ko"`, `"ja"`, `"en"`). |
-| `device` | `const char*` | Target device / Execution Provider: `"auto"` (default), `"cuda"` (or `"cuda:0"`), `"directml"`, `"coreml"`, `"openvino"`, or `"cpu"`. |
+| `weights_dir` | `const char*` | `.spak` 파일 경로 또는 가중치 디렉터리 경로 |
+| `lang` | `const char*` | 언어 코드 (`"ko"`, `"ja"`, `"en"`) |
+| `device` | `const char*` | `"auto"`(기본), `"cuda"`(`"cuda:0"`), `"directml"`, `"coreml"`, `"openvino"`, `"cpu"` |
 
-**Hardware Execution Provider (EP) Resolution Hierarchy**
-1. Explicit `device` argument in `snap_create_device()`
-2. `SNAP_DEVICE` environment variable (e.g. `export SNAP_DEVICE=cuda` or `SNAP_DEVICE=cpu`)
-3. `models/snap_config.json` global `"device"` setting
-4. Default `"auto"` (automatically detects CUDA ➔ CoreML ➔ DirectML ➔ CPU with 0ms inference overhead)
-
-*Note: If a requested hardware EP is not available or fails to initialize, SNAP logs a warning and gracefully falls back to CPU without crashing.*
+*요청한 하드웨어 EP를 사용할 수 없으면 크래시 없이 경고를 출력하고 자동으로 `"cpu"`로 폴백합니다.*
 
 ---
 
 ### `snap_create_with_version`
 
-Allocate and initialize a SNAP engine instance with explicit model variant and manifest version pinning.
+모델 변형(variant) 및 사전/모델 버전을 명시 고정하여 엔진을 생성합니다.
 
 ```c
 SNAP_API void* snap_create_with_version(
@@ -117,318 +132,96 @@ SNAP_API void* snap_create_with_version(
 );
 ```
 
-**Parameters**
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `weights_dir` | `const char*` | Weights root directory path. Falls back to `SNAP_HOME` if `NULL` or `""`. |
-| `lang` | `const char*` | Language code (`"ko"`, `"ja"`, `"en"`). |
-| `variant` | `const char*` | Model variant (e.g., `"kcbert-base-int8"`, or `NULL` for default). |
-| `dict_version` | `const char*` | Dictionary lexicon version tag (e.g., `"v1.0.0"`, or `NULL` for active version). |
-| `model_version` | `const char*` | Neural backbone model version tag (e.g., `"v1.0.0"`, or `NULL` for active version). |
-
-**Return value**
-
-| Value | Meaning |
-|:---|:---|
-| non-null `void*` | Success — engine handle pinned to explicit model/dict versions |
-| `NULL` | Failure — requested version/variant manifest or files not found |
-
 ---
 
 ### `snap_process`
 
-Run full context-aware text normalization and G2P inference on UTF-8 input text using BERT probing heads.
+UTF-8 입력 문장에 대해 문맥 기반 텍스트 정규화(TN), 형태소·수량사·동형이의어 분석 및 표준 발음열(G2P) 변환을 수행합니다.
 
 ```c
 SNAP_API const char* snap_process(void* handle, const char* text_utf8);
 ```
 
-**Parameters**
+- **반환값:** 힙에 할당된 UTF-8 JSON 문자열 포인터 (**호출 후 `snap_free()` 필수**), 실패 시 `NULL`
 
-| Name | Type | Description |
-|:---|:---|:---|
-| `handle` | `void*` | Engine instance handle returned by `snap_create()`. |
-| `text_utf8` | `const char*` | Null-terminated UTF-8 encoded input string. Must not be `NULL`. |
-
-**Return value**
-
-| Value | Meaning |
-|:---|:---|
-| non-null `const char*` | Success — heap-allocated, null-terminated UTF-8 JSON metadata string. **Caller must release with `snap_free()`.** |
-| `NULL` | Failure — `handle` is `NULL`, `text_utf8` is `NULL`, or processing exception |
-
-**Return JSON Schema**
+**반환 JSON 예시**
 
 ```json
 {
-  "normalized_text": "엔비디아 알티엑스 사공구공 지피유에서 백퍼센트 빌드 완료했습니다.",
-  "phonology": "엔비디아 알티엑쓰 사공구공 지피유에서[P1] 백퍼센트 빌드 왈료핻씀니다.[P3]",
+  "normalized_text": "차량 세대가 오후 두시 삼십분에 감기 환자를 태우고 출발합니다.",
+  "phonology": "차량 세대가 오후 두시 삼십뿌네 감기 환자를 태우고 출발함니다.",
+  "numbers": [
+    {"label": "native", "span": "3", "start": 3},
+    {"label": "native", "span": "2", "start": 10},
+    {"label": "sino", "span": "30", "start": 13}
+  ],
+  "heteronyms": [
+    {"conf": 0.9982, "label": "NONE", "span": "감기", "start": 18, "end": 20}
+  ],
   "pauses": [
-    {"char_offset": 20, "type": "P1", "duration_ms": 150},
-    {"char_offset": 36, "type": "P3", "duration_ms": 500}
+    {"word_idx": 0, "word": "차량", "pause": "NONE"},
+    {"word_idx": 1, "word": "세대가", "pause": "P1"},
+    {"word_idx": 8, "word": "출발함니다.", "pause": "P3"}
   ],
   "morphemes": [
-    {"surface": "엔비디아", "pos": "NNG", "start": 0, "end": 4},
-    {"surface": "알티엑스", "pos": "NNG", "start": 5, "end": 9},
-    {"surface": "사공구공", "pos": "SN", "start": 10, "end": 14},
-    {"surface": "지피유", "pos": "NNG", "start": 15, "end": 18},
-    {"surface": "에서", "pos": "JKB", "start": 18, "end": 20},
-    {"surface": "백", "pos": "SN", "start": 21, "end": 22},
-    {"surface": "퍼센트", "pos": "NNB", "start": 22, "end": 25},
-    {"surface": "빌드", "pos": "NNG", "start": 26, "end": 28},
-    {"surface": "완료", "pos": "VV", "start": 29, "end": 31},
-    {"surface": "했", "pos": "VV+EP", "start": 31, "end": 32},
-    {"surface": "습니다", "pos": "EF", "start": 32, "end": 35},
-    {"surface": ".", "pos": "SF", "start": 35, "end": 36}
-  ],
-  "vowel_length": []
+    {"surface": "차량", "pos": "NNG", "origin": "HANJA", "start": 0, "end": 2},
+    {"surface": "세", "pos": "SN", "origin": "HANJA", "start": 3, "end": 4}
+  ]
 }
 ```
-
-> **Note on `morphemes` Coordinate Alignment**:  
-> Every item in `"morphemes"` (`surface`, `start`, `end`) is aligned to the post-normalization Korean `normalized_text` Unicode character (codepoint) offsets (`normalized_text[start:end] == surface`).
->
-> **Note on STT Sentence Segmentation**:  
-> In Speech-to-Text (STT) post-processing pipelines, words with `"type": "P3"` indicate sentence boundaries determined by neural context analysis of sentence-final endings (`EF`). Splitting unpunctuated STT transcripts on `P3` boundaries provides reliable sentence segmentation.
 
 ---
 
 ### `snap_process_ext`
 
-Run SNAP inference with per-sentence dynamic options (in-memory JSON string), allowing zero-disk-IO overriding of default `snap_config.json` settings at runtime.
+문장 단위로 동적 런타임 옵션 JSON(`options_json`)을 전달하여 설정 파일 수정 없이 추론 옵션을 제어합니다.
 
 ```c
 SNAP_API const char* snap_process_ext(
-    void* handle, 
-    const char* text_utf8, 
-    const char* options_json
-);
-```
-
-**Parameters**
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `handle` | `void*` | Engine instance handle returned by `snap_create()`. |
-| `text_utf8` | `const char*` | Input UTF-8 string to process. |
-| `options_json` | `const char*` | Null-terminated in-memory JSON string containing per-sentence option overrides (e.g. `"{\"to_ssml\": true}"`). If `NULL` or `""`, default config settings apply. |
-
-**Supported Dynamic Option Keys (`options_json`)**
-
-| Key | Type | Values | Description |
-|:---|:---:|:---|:---|
-| `to_ssml` | `bool` | `true`, `false` | Enable standard W3C SSML `<break>` tags attached directly to G2P phonetic transcription. |
-| `to_ipa` / `return_ipa` | `bool` | `true`, `false` | Enable IPA transcription output string. |
-| `prosody_format` | `string` | `"tags"`, `"ssml"`, `"none"` | Format of prosodic pauses (automatically maps to SSML when set to `"ssml"`). |
-| `vowel_length` | `bool` | `true`, `false` | (Korean) Enable vowel length colon notation (`:`). |
-| `pitch_accent` | `bool` | `true`, `false` | (Japanese) Enable pitch accent kernel notation. |
-| `script` | `string` | `"katakana"`, `"hiragana"`, `"romaji"` | (Japanese) Output orthography/script type. |
-| `to_json` | `bool` | `true`, `false` | When set to `false`, returns plain phonetic text directly instead of a full JSON metadata object. |
-
-**Return value**
-
-| Value | Meaning |
-|:---|:---|
-| non-null `const char*` | Success — heap-allocated output string formatted according to dynamic options. **Caller must release with `snap_free()`.** |
-| `NULL` | Failure |
-
-**Usage Example**
-
-```cpp
-// 1. Default G2P phonetic transcription (Returns full JSON)
-const char* res1 = snap_process_ext(handle, "국무회의를 열고 예산안을 확정했습니다.", "{}");
-
-// 2. Request raw plain G2P text directly without JSON wrapping
-const char* res2 = snap_process_ext(handle, "국무회의를 열고 예산안을 확정했습니다.", "{\"to_json\": false}");
-// Output: "궁무회이를 열고 내년도 예사난 편성 지치믈 최종 확쩡핻씀니다."
-
-// 3. Target standard W3C SSML with G2P phonetic transcription and pause breaks
-const char* res3 = snap_process_ext(handle, "국무회의를 열고 예산안을 확정했습니다.", "{\"to_ssml\": true, \"to_json\": false}");
-// Output: "<speak>궁무회이를 열고 <break strength=\"medium\"/> 내년도 예사난 편성 지치믈 최종 확쩡핻씀니다.</speak>"
-
-snap_free((void*)res1);
-snap_free((void*)res2);
-snap_free((void*)res3);
-```
-
----
-
-### `snap_process_batch`
-
-Run batch context-aware text normalization and G2P inference on multiple UTF-8 input texts simultaneously using True Dynamic Batching.
-
-BERT backbone and Morph Probing Heads are executed in a **single matrix forward pass**, maximizing hardware throughput while guaranteeing **100% exact match parity** with sequential `snap_process()` calls.
-
-```c
-SNAP_API const char* snap_process_batch(
-    void* handle, 
-    const char** texts_utf8, 
-    int count
-);
-```
-
-**Parameters**
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `handle` | `void*` | Engine instance handle returned by `snap_create()` or `snap_create_device()`. |
-| `texts_utf8` | `const char**` | Array of null-terminated UTF-8 input strings (`const char* texts[count]`). |
-| `count` | `int` | Number of strings in the array. (Recommended: `16~32` for CPU, `64~128` for GPU). |
-
-**Return value**
-
-| Value | Meaning |
-|:---|:---|
-| non-null `const char*` | Success — JSON array string `[ {...}, {...}, ... ]` where each element corresponds to the full SNAP result object of each input text. **Caller must release with `snap_free()`.** |
-| `NULL` | Failure |
-
-**Return Format Comparison (Single vs Batch)**
-
-* **Single (`snap_process`)**: Returns a single JSON Object.
-  ```json
-  {
-    "phonology": "궁무회이를 열고 예사난 만 삼배고시붜늘 확쩡핻씀니다.",
-    "normalized_text": "국무회의를 열고 예산안 만 삼백오십원을 확정했습니다.",
-    "pauses": [...],
-    "morphemes": [...]
-  }
-  ```
-* **Batch (`snap_process_batch`)**: Returns a JSON Array containing an object for each sentence.
-  ```json
-  [
-    {
-      "phonology": "궁무회이를 열고 예사난 만 삼배고시붜늘 확쩡핻씀니다.",
-      "normalized_text": "국무회의를 열고 예산안 만 삼백오십원을 확정했습니다.",
-      "pauses": [...]
-    },
-    {
-      "phonology": "여기서 삼번 뻐스를 타고 세번 가라타세요.",
-      "normalized_text": "여기서 삼번 버스를 타고 세번 갈아타세요.",
-      "pauses": [...]
-    }
-  ]
-  ```
-
-**Hardware Batch Sizing Best Practices**
-
-| Environment | Optimal Batch Size | Rationale |
-|:---|:---:|:---|
-| **CPU (Intel / AMD / ARM)** | `16 ~ 32` | Optimally fits within CPU L3 cache memory (16~32MB) without cache misses or RAM memory bottlenecks. |
-| **GPU / NPU (CUDA / DirectML / CoreML)** | `64 ~ 128` | Fully saturates thousands of Tensor Cores and utilizes high-bandwidth VRAM for maximum TPS. |
-
-**C / C++ Usage Example**
-
-```cpp
-#include <stdio.h>
-#include "snap/snap_api.h"
-
-int main() {
-    void* handle = snap_create(NULL, "ko");
-    if (!handle) return 1;
-
-    const char* texts[3] = {
-        "정부는 오늘 오전 국무회의를 열고 2024년도 예산안을 확정했습니다.",
-        "여기서 3번 버스를 타고 2번 갈아타야 판교역에 갈 수 있어.",
-        "오후 4시 20분에 서울역 4번 출구에서 만납시다."
-    };
-
-    // 1 single forward pass for all 3 sentences
-    const char* json_array = snap_process_batch(handle, texts, 3);
-    printf("Batch JSON Output:\n%s\n", json_array);
-
-    // Release buffer exactly once
-    snap_free((void*)json_array);
-    snap_destroy(handle);
-    return 0;
-}
-```
-
----
-
-### `snap_process_batch_ext`
-
-Run batch inference on multiple UTF-8 texts with per-request dynamic option overrides (e.g., SSML tags, IPA phonetic transcription, or plain text output).
-
-```c
-SNAP_API const char* snap_process_batch_ext(
-    void* handle, 
-    const char** texts_utf8, 
-    int count, 
-    const char* options_json
-);
-```
-
-**Parameters**
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `handle` | `void*` | Engine instance handle returned by `snap_create()`. |
-| `texts_utf8` | `const char**` | Array of null-terminated UTF-8 input strings. |
-| `count` | `int` | Number of strings in the array. |
-| `options_json` | `const char*` | Dynamic JSON options (e.g. `"{\"to_ssml\": true}"` or `"{\"to_json\": false}"`). |
-
-**Plain Text Output Mode (`"to_json": false`)**
-
-When `"to_json": false` is passed, `snap_process_batch_ext` returns each sentence's phonetic result separated by a newline (`\n`), allowing zero-JSON-parsing overhead for high-speed pipelines:
-
-```cpp
-const char* plain_results = snap_process_batch_ext(handle, texts, 3, "{\"to_json\": false}");
-// Output:
-// 궁무회이를 열고 내년도 예사난 편성 지치믈 최종 확쩡핻씀니다.
-// 여기서 삼번 뻐스를 타고 두번 가라타야 판교여게 갈 수 이써.
-// 오후 네시 이시부네 서울력 사번 출구에서 만납씨다.
-
-snap_free((void*)plain_results);
-```
-
----
-
-### `snap_process_document`
-
-긴 문서(소설, 기사, 강의 스크립트 등 512 토큰 초과 텍스트)를 입력받아, 내부 초고속 N-gram 어미 분리기(`SentenceSplitter`)로 문장을 자동 분할하고 배치 추론(`batch_size = 4~8`)을 수행하여 문장별 G2P 결과 및 오프셋을 반환합니다.
-
-```c
-SNAP_API const char* snap_process_document(
     void* handle,
-    const char* doc_utf8,
+    const char* text_utf8,
     const char* options_json
 );
 ```
 
-**Parameters**
+**주요 동적 옵션 키 (`options_json`)**
 
-| Name | Type | Description |
-|:---|:---|:---|
-| `handle` | `void*` | `snap_create()`로 생성된 엔진 인스턴스 핸들 |
-| `doc_utf8` | `const char*` | UTF-8 인코딩된 장문 텍스트 |
-| `options_json` | `const char*` | 선택적 JSON 옵션 (예: `"{\"batch_size\": 8, \"to_json\": true}"`) |
+| 키 | 타입 | 지원값 | 설명 |
+|:---|:---:|:---|:---|
+| `to_ipa` / `return_ipa` | `bool` | `true`, `false` | 국제음성기호(IPA) 변환 문자열(`"ipa"`) 포함 여부 |
+| `to_ssml` | `bool` | `true`, `false` | W3C 표준 SSML `<break>` / `<phoneme>` 태그 출력 여부 |
+| `vowel_length` | `bool` | `true`, `false` | (한국어) 장음 기호(`:`) 표기 활성화 |
+| `pronunciation_style` | `string` | `"standard"`, `"colloquial"` 등 | (한국어) 발음 스타일 선택 |
+| `script` | `string` | `"katakana"`, `"hiragana"`, `"romaji"` | (일본어) 출력 문자 체계 |
+| `pitch_accent` | `bool` | `true`, `false` | (일본어) 피치 악센트 기호(`^`, `]`) 표기 |
+| `to_json` | `bool` | `true`, `false` | `false` 지정 시 JSON 래핑 없이 순수 발음열 텍스트만 즉시 반환 |
 
-**JSON Output Schema (`"to_json": true`, Default)**:
-```json
-{
-  "total_sentences": 2,
-  "sentences": [
-    {
-      "index": 0,
-      "raw": "인공지능 기술은 빠르게 발전하고 있습니다.",
-      "phonology": "인공지능 기수른 빠르게 발쩐하고 읻씀니다.",
-      "normalized_text": "인공지능 기술은 빠르게 발전하고 있습니다.",
-      "start_char": 0,
-      "end_char": 25
-    },
-    ...
-  ]
-}
+---
+
+### `snap_process_batch` / `snap_process_batch_ext`
+
+다수의 UTF-8 문장을 단일 행렬 패스(Dynamic Batching)로 일괄 추론합니다. 단건 `snap_process()`와 100% 동일한 출력을 보장합니다(권장 배치 크기: CPU `16~32`, GPU `64~128`).
+
+```c
+SNAP_API const char* snap_process_batch(void* handle, const char** texts_utf8, int count);
+
+SNAP_API const char* snap_process_batch_ext(
+    void* handle,
+    const char** texts_utf8,
+    int count,
+    const char* options_json
+);
 ```
 
 ---
 
-### `snap_process_file`
+### `snap_process_document` / `snap_process_file`
 
-초대용량 텍스트 파일(수십~수백 MB의 코퍼스, 전자책 전체 텍스트)을 파일 단위로 입력받아, 배치 단위로 처리하면서 결과를 즉시 파일로 스트리밍 저장합니다. 전체 결과를 메모리에 누적하지 않으므로 **100MB 이상의 대용량 파일 작업 시에도 프로세스 RAM 사용량이 10MB 이하로 일정하게 유지**됩니다.
+512 토큰을 초과하는 장문 텍스트(`snap_process_document`) 또는 대용량 파일(`snap_process_file`)을 문장 경계 감지기 기반으로 자동 분할·배치 스트리밍 처리합니다.
 
 ```c
+SNAP_API const char* snap_process_document(void* handle, const char* doc_utf8, const char* options_json);
+
 SNAP_API bool snap_process_file(
     void* handle,
     const char* in_file_path,
@@ -437,261 +230,120 @@ SNAP_API bool snap_process_file(
 );
 ```
 
-**Parameters**
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `handle` | `void*` | 엔진 인스턴스 핸들 |
-| `in_file_path` | `const char*` | 입력 텍스트 파일 경로 (UTF-8) |
-| `out_file_path` | `const char*` | 출력 파일 경로 (JSONL 또는 Text) |
-| `options_json` | `const char*` | 선택적 JSON 옵션 (`"to_json": true` ➔ JSON Lines 저장, `"to_json": false` ➔ 발음 텍스트 저장) |
-
----
-
-### Large-Scale Dataset Chunking Pattern (Python Example)
-
-When processing large datasets (e.g., 10,000 ~ 100,000 sentences), chunking inputs into optimal batch sizes (`B=32` for CPU, `B=64` for GPU) achieves linear scalability and constant, flat RAM usage (~150MB):
-
-```python
-import ctypes
-import json
-
-lib = ctypes.CDLL("snap_cpp.dll")
-lib.snap_create.restype = ctypes.c_void_p
-lib.snap_process_batch.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_char_p), ctypes.c_int]
-lib.snap_process_batch.restype = ctypes.c_void_p
-lib.snap_free.argtypes = [ctypes.c_void_p]
-
-handle = lib.snap_create(b"models", b"ko")
-sentences = [...]  # 10,000 sentences
-
-BATCH_SIZE = 32  # Optimal for CPU
-results = []
-
-for i in range(0, len(sentences), BATCH_SIZE):
-    chunk = sentences[i:i + BATCH_SIZE]
-    c_arr = (ctypes.c_char_p * len(chunk))(*(s.encode('utf-8') for s in chunk))
-    
-    ptr = lib.snap_process_batch(handle, c_arr, len(chunk))
-    batch_json = ctypes.string_at(ptr).decode('utf-8')
-    results.extend(json.loads(batch_json))
-    lib.snap_free(ptr)
-
-lib.snap_destroy(handle)
-```
-
 ---
 
 ### `snap_normalize`
 
-Standard SNAP text normalization & G2P processing (Alias for `snap_process`).
+숫자·기호·단위 텍스트 정규화 결과 문자열만 반환합니다(반환 포인터는 `snap_free()`로 해제).
 
 ```c
 SNAP_API const char* snap_normalize(void* handle, const char* text_utf8);
 ```
 
-**Parameters**
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `handle` | `void*` | Engine instance handle returned by `snap_create()`. |
-| `text_utf8` | `const char*` | Input UTF-8 string to normalize. |
-
-**Return value**
-
-| Value | Meaning |
-|:---|:---|
-| non-null `const char*` | Success — heap-allocated normalized text string. **Caller must release with `snap_free()`.** |
-
 ---
 
-### `snap_free`
-
-Release a heap-allocated result string buffer returned by `snap_process()` or `snap_normalize()`.
+### `snap_free` / `snap_destroy`
 
 ```c
-SNAP_API void snap_free(const void* result);
+SNAP_API void snap_free(const void* result);   // 문자열 버퍼 해제 (NULL 전달 시 안전 무시)
+SNAP_API void snap_destroy(void* handle);      // 엔진 인스턴스 및 ONNX 세션 해제
 ```
-
-**Parameters**
-
-| Name | Type | Description |
-|:---|:---|:---|
-| `result` | `const void*` | Pointer previously returned by `snap_process()` or `snap_normalize()`. Safe to pass `NULL` (no-op). |
 
 ---
 
-### `snap_destroy`
-
-Destroy an engine instance and release all associated ONNX Runtime sessions, memory, and model weights.
+## 3. 버전 및 호환성 확인 API (`snap_api.h` / `snap_version.h`)
 
 ```c
-SNAP_API void snap_destroy(void* handle);
+#define SNAP_VERSION_MAJOR    2
+#define SNAP_VERSION_MINOR    1
+#define SNAP_VERSION_PATCH    2
+#define SNAP_VERSION_STRING   "2.1.2"
+#define SNAP_VERSION_NUMBER   20102 // (MAJOR * 10000 + MINOR * 100 + PATCH)
+
+SNAP_API const char* snap_version(void);                    // "2.1.2"
+SNAP_API const char* snap_engine_version(const char* lang); // 언어 팩 모델 인덱스 버전 ("2.1.2")
+SNAP_API int         snap_version_number(void);             // 20102
+SNAP_API void        snap_version_info(int* major, int* minor, int* patch);
+SNAP_API int         snap_version_check(int major, int minor); // 호환 시 1, 불일치 시 0
+SNAP_API const char* snap_version_verbose(void);            // 플랫폼·컴파일러 포함 상세 문자열
+SNAP_API bool        snap_is_gpu_available(void);           // 호스트 GPU/NPU 가속 사용 가능 여부 (true/false)
 ```
 
 ---
 
-## Versioning & ABI Compatibility Functions (`snap_version.h`)
+## 4. 신경망 TTS 백엔드 텐서 연동 API (`snap_piper` / VITS / MeloTTS)
 
----
-
-### `SNAP_VERSION_*` Compile-time Macros
-
-```c
-#define SNAP_VERSION_MAJOR    1
-#define SNAP_VERSION_MINOR    0
-#define SNAP_VERSION_PATCH    0
-#define SNAP_VERSION_STRING   "1.0.0"
-#define SNAP_VERSION_NUMBER   10000 // (MAJOR * 10000 + MINOR * 100 + PATCH)
-```
-
----
-
-### `snap_version`
-
-Get the runtime shared library version string.
-
-```c
-SNAP_API const char* snap_version(void);
-```
-**Return value**: Static null-terminated version string (e.g. `"1.0.0"`). Do **not** pass to `snap_free()`.
-
----
-
-### `snap_version_number`
-
-Get runtime numeric version value for version comparison.
-
-```c
-SNAP_API int snap_version_number(void);
-```
-**Return value**: Integer version (e.g., `10000` for `1.0.0`).
-
----
-
-### `snap_version_info`
-
-Get detailed major, minor, and patch version numbers.
-
-```c
-SNAP_API void snap_version_info(int* major, int* minor, int* patch);
-```
-
----
-
-### `snap_version_check`
-
-Check ABI compatibility against target major and minor version numbers.
-
-```c
-SNAP_API int snap_version_check(int major, int minor);
-```
-**Return value**: `1` if compatible, `0` otherwise.
-
----
-
-### `snap_version_verbose`
-
-Get verbose runtime version information (includes compiler, build date, and target platform).
-
-```c
-SNAP_API const char* snap_version_verbose(void);
-```
-
----
-
-## Configuration & Engine Options (`snap_config.json`)
-
-The SNAP C++ Engine controls G2P output modes, SSML tags, target TTS engine adapters, and language-specific phonological rules via `models/snap_config.json` (or dynamic in-memory settings passed to `snap_process_ext`).
-
-```json
-{
-    "ko": {
-        "vowel_length": false,
-        "to_ipa": false,
-        "to_ssml": false
-    },
-    "ja": {
-        "script": "katakana",
-        "pitch_accent": false,
-        "to_ipa": false,
-        "to_ssml": false
-    },
-    "en": {
-        "to_ipa": false,
-        "to_ssml": false
-    }
-}
-```
-
-### Key Configuration Definitions
-
-| Key | Type | Default | Description |
-|:---|:---|:---|:---|
-| `to_ssml` | `bool` | `false` | When `true`, outputs standard W3C SSML tags (`<break strength="..."/>` for Korean pauses, `<phoneme alphabet="ipa" ph="...">word</phoneme>` for English). When `false`, SNAP outputs direct phonetic text. |
-| `to_ipa` | `bool` | `false` | Enables International Phonetic Alphabet (IPA) output string transcription (e.g. `[aɪ rɛd ðə bʊk...]`). |
-| `vowel_length` | `bool` | `false` | Korean vowel length notation (`:`). |
-| `script` | `string` | `"katakana"` | Japanese script output (`"katakana"`, `"hiragana"`, or `"romaji"`). |
-| `pitch_accent` | `bool` | `false` | Japanese pitch accent contour marking (`^` rise, `]` drop). |
-
----
-
-## Complete C++ Integration Example
-
-```cpp
-#include <iostream>
-#include "snap/snap_api.h"
-#include "snap/snap_version.h"
-
-int main() {
-    // 0. Verify SDK Version
-    std::cout << "SNAP SDK Version: " << snap_version() << std::endl;
-    if (!snap_version_check(SNAP_VERSION_MAJOR, SNAP_VERSION_MINOR)) {
-        std::cerr << "ABI incompatibility detected!\n";
-        return 1;
-    }
-
-    // 1. Initialize SNAP engine for Korean using SNAP_HOME
-    void* handle = snap_create(NULL, "ko");
-    if (!handle) {
-        std::cerr << "Failed to initialize SNAP engine handle.\n";
-        return 1;
-    }
-
-    // 2. Perform context-aware text normalization & G2P processing
-    const char* input = "여기서 3번 버스를 타고 3번 가라타야 해.";
-    const char* result = snap_process(handle, input);
-
-    if (result) {
-        std::cout << "Input:  " << input << std::endl;
-        std::cout << "Output: " << result << std::endl;
-
-        // 3. Release output string buffer
-        snap_free(result);
-    }
-
-    // 4. Destroy engine handle
-    snap_destroy(handle);
-    return 0;
-}
-```
-
----
-
-## Advanced Backend Integration (For TTS Engines)
-
-For deep tensor-level integration with neural TTS models (e.g. MeloTTS, VITS), SNAP SDK provides direct hidden-state export functions:
+PyTorch 의존성 없이 C++ 음향 모델에 문맥 BERT 은닉 상태(`[seq_len x hidden_dim]`)와 단어-서브워드 정렬 배열을 직접 전달하기 위한 API입니다.
 
 ```c
 SNAP_API float* snap_get_bert_features(
-    void* handle, 
-    const char* text_utf8, 
-    int* out_seq_len, 
-    int* out_hidden_dim, 
-    int** out_word2ph, 
+    void* handle,
+    const char* text_utf8,
+    int* out_seq_len,
+    int* out_hidden_dim,
+    int** out_word2ph,
     int* out_word2ph_len
 );
 
-SNAP_API void snap_free_tensor(void* ptr);
+SNAP_API void snap_free_tensor(void* ptr); // features 및 out_word2ph 각각 해제 필수
+
+// 선택: GPU/CPU 2단계 분리 파이프라인 API (include/snap/snap_pipeline_api.h)
+SNAP_API float* snap_get_bert_features_with_offsets(
+    void* handle, const char* text_utf8,
+    int* out_seq_len, int* out_hidden_dim,
+    size_t** out_offsets_flat, int* out_offsets_count
+);
+SNAP_API const char* snap_process_with_hidden(
+    void* handle, const char* text_utf8,
+    const float* hidden, int seq_len, int hdim,
+    const size_t* offsets_flat, int offsets_count,
+    const char* options_json
+);
+SNAP_API void snap_free_offsets(size_t* ptr);
 ```
-*(Note: Internal integration API designed for bypassing PyTorch BERT downloads in open-source speech backends. General application developers should use `snap_process` or `snap_process_ext`.)*
+
+---
+
+## 5. C++ 전체 연동 예제 (`.spak` Zero-Disk 모드)
+
+전체 빌드 가능한 샘플은 SDK 패키지 내 `examples/sdk_demo.cpp` 및 `examples/CMakeLists.txt`에 포함되어 있습니다.
+
+```cpp
+#include <cstdio>
+#include "snap_api.h"
+
+int main() {
+    // 1. 버전 및 라이선스(선택) 확인
+    if (!snap_version_check(SNAP_VERSION_MAJOR, SNAP_VERSION_MINOR)) {
+        std::fprintf(stderr, "ABI 버전 불일치: %s\n", snap_version());
+        return 1;
+    }
+    snap_set_license("OPTIONAL-LICENSE-KEY");
+
+    // 2. 암호화 .spak 언어 팩 인메모리 로드 (디스크 임시 파일 0개)
+    void* engine = snap_create("packs/snap_ko.spak", "ko");
+    if (!engine) {
+        std::fprintf(stderr, "엔진 초기화 실패: %s\n", snap_get_last_error());
+        return 1;
+    }
+
+    // 3. 한국어 문맥 정규화 및 G2P 추론
+    const char* json = snap_process(engine, "차량 3대가 오후 2시 30분에 감기 환자를 태우고 출발합니다.");
+    if (json) {
+        std::printf("%s\n", json);
+        snap_free(json);
+    }
+
+    // 4. BERT 은닉 텐서 추출 (TTS 조건 입력용)
+    int seq_len = 0, hidden_dim = 0, w2p_len = 0;
+    int* word2piece = nullptr;
+    float* feat = snap_get_bert_features(engine, "감기 환자", &seq_len, &hidden_dim, &word2piece, &w2p_len);
+    if (feat) {
+        snap_free_tensor(feat);
+        snap_free_tensor(word2piece);
+    }
+
+    snap_destroy(engine);
+    return 0;
+}
+```
