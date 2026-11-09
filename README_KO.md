@@ -9,6 +9,7 @@ SNAP은 문맥 인지형 실시간 음성 전처리(TTS Frontend & ITN) 엔진�
 
 ## 📢 새 소식 (What's New)
 
+* **[2026.11.09] [SNAP 한국어 전처리 엔진 v2.1.3 업데이트 안내](docs/SNAP_UPDATE_NOTES_KO.md)** ([English](docs/SNAP_UPDATE_NOTES.md)) — Qwen-TTS 지원을 위한 전처리 인터페이스(`tn_for_qwen`) 추가 및 동철이음어 경계·수사 읽기 등 일부 추가 버그 수정.
 * **[2026.11.04] [SNAP 한국어 전처리 엔진 v2.1.2 업데이트 안내](docs/SNAP_UPDATE_NOTES_KO.md)** ([English](docs/SNAP_UPDATE_NOTES.md)) — `-가(價)`·`-권(券·圈·權·拳)` 동철이음이의어 20종 신규 확장, 표준 발음법·외래어 세부 예외 보강 및 다양한 애플리케이션 지원을 위한 SNAP SDK 업데이트.
 
 ---

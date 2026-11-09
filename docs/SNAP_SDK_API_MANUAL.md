@@ -256,6 +256,8 @@ SNAP_API const char* snap_process_ext(
 | `to_ipa` / `return_ipa` | `bool` | `true`, `false` | Enable IPA transcription output string. |
 | `prosody_format` | `string` | `"tags"`, `"ssml"`, `"none"` | Format of prosodic pauses (automatically maps to SSML when set to `"ssml"`). |
 | `vowel_length` | `bool` | `true`, `false` | (Korean) Enable vowel length colon notation (`:`). |
+| `tn_only` | `bool` | `true`, `false` | Skip G2P phonetic rules and return only text normalization (TN) output. |
+| `tn_for_qwen` | `bool` | `true`, `false` | (Korean, default `false`) Qwen3-TTS hybrid TN output mode (heteronym fortis substitution & lenis `'` insertion, medical/academic `-꽈`, counter `-껀`, and context-free `ㄴ`-addition/double-coda/Sino-Korean nasalization exceptions). |
 | `pitch_accent` | `bool` | `true`, `false` | (Japanese) Enable pitch accent kernel notation. |
 | `script` | `string` | `"katakana"`, `"hiragana"`, `"romaji"` | (Japanese) Output orthography/script type. |
 | `to_json` | `bool` | `true`, `false` | When set to `false`, returns plain phonetic text directly instead of a full JSON metadata object. |
@@ -574,7 +576,7 @@ SNAP_API void snap_destroy(void* handle);
 ```c
 #define SNAP_VERSION_MAJOR    2
 #define SNAP_VERSION_MINOR    1
-#define SNAP_VERSION_PATCH    2
+#define SNAP_VERSION_PATCH    1
 #define SNAP_VERSION_STRING   "2.1.2"
 #define SNAP_VERSION_NUMBER   20102 // (MAJOR * 10000 + MINOR * 100 + PATCH)
 ```

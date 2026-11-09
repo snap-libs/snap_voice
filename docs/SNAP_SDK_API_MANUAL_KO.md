@@ -192,6 +192,8 @@ SNAP_API const char* snap_process_ext(
 | `to_ssml` | `bool` | `true`, `false` | W3C 표준 SSML `<break>` / `<phoneme>` 태그 출력 여부 |
 | `vowel_length` | `bool` | `true`, `false` | (한국어) 장음 기호(`:`) 표기 활성화 |
 | `pronunciation_style` | `string` | `"standard"`, `"colloquial"` 등 | (한국어) 발음 스타일 선택 |
+| `tn_only` | `bool` | `true`, `false` | (한국어/일본어/영어) G2P 발음 변환을 생략하고 텍스트 정규화(TN) 결과만 반환 |
+| `tn_for_qwen` | `bool` | `true`, `false` | (한국어, 기본값 `false`) Qwen3-TTS 연동 전용 하이브리드 TN 출력 모드 (동철이음어 된소리 치환 및 평음 `'` 경음화 차단 기호 삽입, 진료과목 `-꽈`, 수량 `-껀`, ㄴ첨가/겹받침/한자어 ㄴ+ㄹ 예외 치환) |
 | `script` | `string` | `"katakana"`, `"hiragana"`, `"romaji"` | (일본어) 출력 문자 체계 |
 | `pitch_accent` | `bool` | `true`, `false` | (일본어) 피치 악센트 기호(`^`, `]`) 표기 |
 | `to_json` | `bool` | `true`, `false` | `false` 지정 시 JSON 래핑 없이 순수 발음열 텍스트만 즉시 반환 |
@@ -256,7 +258,7 @@ SNAP_API void snap_destroy(void* handle);      // 엔진 인스턴스 및 ONNX �
 ```c
 #define SNAP_VERSION_MAJOR    2
 #define SNAP_VERSION_MINOR    1
-#define SNAP_VERSION_PATCH    2
+#define SNAP_VERSION_PATCH    1
 #define SNAP_VERSION_STRING   "2.1.2"
 #define SNAP_VERSION_NUMBER   20102 // (MAJOR * 10000 + MINOR * 100 + PATCH)
 

@@ -7,6 +7,42 @@
 
 ---
 
+## 🚀 SNAP Korean Preprocessing Engine v2.1.3 Update (2026.11.09)
+
+Added a **selective phonetic text normalization interface (`tn_for_qwen`)** for Qwen-TTS / LLM-based TTS engines, alongside additional fixes for cross-morpheme heteronym boundaries and large-unit numeral readings.
+
+### Highlights
+- **Selective Phonetic TN Mode for Qwen-TTS (`tn_for_qwen`)**: Preserves standard Korean orthography while selectively resolving the core failure points of BPE/LLM-based TTS (28 context-dependent heteronyms, `-가/-과` suffixes, compound `ㄴ`-addition with BPE token safety guards, and Sino-Korean `ㄴ+ㄹ → [ㄴ+ㄴ]` exceptions).
+- **Eliminated Cross-Morpheme & Derivative Heteronym False Positives**: Blocked false matches across noun + subject particle boundaries (`붕대가`, `서울시가`) and 3+ syllable Sino-Korean `-적(的)` derivatives (`감성적`, `이성적`, `정신병적`).
+- **Heteronym Context Refinements & 13 Administrative `-과(課)` Departments**: Refined context rules for `감기`, `송장`, `성적`, and `본권`, and expanded `-과(課) → [꽈]` tensification to 13 administrative departments (`인사과`, `총무과`, etc.).
+- **Large-Unit Numeral (`일억·일조`) & Spacing Fixes**: Restored mandatory `'일(1)'` before `억/조/경` (`100,000,000원 → 일억원`) and removed intra-number spaces in `tn_for_qwen` mode to prevent particle `-만` misprosody.
+
+---
+
+### 1. Morpheme-Boundary & Derivative Guards for Heteronyms
+- **Cross-Morpheme False-Positive Prevention**:
+  - Prevented surface substring matches across noun stems + subject particle `가(JKS)` or compound boundaries from triggering heteronym rules.
+  - Examples: `"붕대가, 군대가, 세대가, 침대가, 서울시가"` and `"방안다각화, 집안다툼, 수영장, 방송장비, 반감기, 열병합"` remain unchanged.
+- **3+ Syllable Sino-Korean `-적(的)` Derivatives**:
+  - Extended the 3+ syllable exclusion rule (previously on `사적`) to `성적`, `지적`, and `병적`, keeping `"감성적, 이성적, 지성적, 본성적, 여성적, 남성적, 의지적, 정신병적"` plain.
+
+### 2. Heteronym Context Disambiguation & `-과(課)` Department Expansion
+- **Context Rule Refinements (4 Words)**:
+  - **`감기`**: Verbal nominal `"머리 감기, 실 감기, 태엽 감기"` → **`[감끼]`**, while passive verb conjugations (`"눈이 감기더니, 붕대가 감기지"`) remain plain.
+  - **`송장`**: Corpse contexts (`"시체 송장, 산송장, 주검"`) → plain **`[송장]`** (`송'장`).
+  - **`성적`**: Added sexual-context collocations (`"성적 수치심, 성적 욕구, 성적 학대, 성적 지향"`) → **`[성쩍]`**.
+  - **`본권`**: Main-volume contexts (`"본권과 부록, 도서 본권, 전집 본권"`) → plain **`[본권]`** (`본'권`).
+- **13 Administrative Departments `-과(課)`**:
+  - Added `인사과, 총무과, 기획과, 행정과, 교무과, 홍보과, 회계과, 재무과, 세무과, 민원과, 수사과, 형사과, 교통과` (`[-꽈]`) alongside medical/academic departments (`내과, 치과, 법과대학, 공과대학`), while excluding comitative particle `-과`.
+
+### 3. Numeral Reading (`일억·일조`) & Intra-Number Spacing Refinements
+- **Mandatory `'일(1)'` Before `억·조·경`**:
+  - Unlike `십/백/천/만`, leading `1` before `억/조/경` is preserved: `100,000,000원` → **`일억원`**, `100,000,000명` → **`일억명`**, `1,000,000,000,000원` → **`일조원`**.
+- **Intra-Number Space Removal in `tn_for_qwen` Mode**:
+  - Removes spaces after `만/억/조` inside numbers (`"안건 3건과 12,500원짜리"` → **`"안건 세껀과 만이천오백원짜리"`**) so LLM TTS models do not misread standalone `만 ` as the delimiter particle `-만` ("only").
+
+---
+
 ## 🚀 SNAP Korean Preprocessing Engine v2.1.2 Update (2026.11.04)
 
 Bugs identified in previous versions and subtle edge cases previously missing from the Standard Pronunciation Rules have been reinforced for even more accurate and natural Korean pronunciation. In addition, the SNAP SDK has been updated to seamlessly support a wider range of application environments.
