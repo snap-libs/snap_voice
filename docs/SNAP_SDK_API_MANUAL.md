@@ -1,4 +1,4 @@
-# SNAP C/C++ Native SDK API Reference Manual (`v2.1.2`)
+# SNAP C/C++ Native SDK API Reference Manual (`v2.1.3`)
 
 > **📌 Document Guidance**  
 > * **This Document (`SNAP_SDK_API_MANUAL.md`):** C/C++ Native Embedded Library (Headers, DLL/SO, `.spak` Encrypted Container, Memory Management) Reference Specification.  
@@ -13,13 +13,13 @@
 
 ## Overview
 
-`snap_cpp` (`v2.1.2`) exposes a pure C-linkage ABI built on an **opaque handle** pattern with **100% in-memory `.spak` encrypted asset loading (Zero-Disk)**.
+`snap_cpp` (`v2.1.3`) exposes a pure C-linkage ABI built on an **opaque handle** pattern with **100% in-memory `.spak` encrypted asset loading (Zero-Disk)**.
 Each call to `snap_create()` returns an independent engine instance, enabling multiple languages to run concurrently in a single process without shared state or mutex contention.
 
 **Lifecycle**
 
 ```
-snap_set_license()  (Optional — v2.1.2 defaults to offline-allow stub)
+snap_set_license()  (Optional — v2.1.3 defaults to offline-allow stub)
     │
 snap_create("packs/snap_ko.spak", "ko")  ──► on NULL: snap_get_last_error()
     │
@@ -107,7 +107,7 @@ SNAP_API int snap_set_license(const char* license_key);
 ```
 
 **Return value**: `0` on valid/accepted license, non-zero error code on rejection.  
-*(Note: In `v2.1.2`, offline default-allow stub mode is active; passing `NULL`, `""`, or any token returns `0`).*
+*(Note: In `v2.1.3`, offline default-allow stub mode is active; passing `NULL`, `""`, or any token returns `0`).*
 
 ---
 
@@ -577,8 +577,8 @@ SNAP_API void snap_destroy(void* handle);
 #define SNAP_VERSION_MAJOR    2
 #define SNAP_VERSION_MINOR    1
 #define SNAP_VERSION_PATCH    1
-#define SNAP_VERSION_STRING   "2.1.2"
-#define SNAP_VERSION_NUMBER   20102 // (MAJOR * 10000 + MINOR * 100 + PATCH)
+#define SNAP_VERSION_STRING   "2.1.3"
+#define SNAP_VERSION_NUMBER   20103 // (MAJOR * 10000 + MINOR * 100 + PATCH)
 ```
 
 ---
@@ -590,7 +590,7 @@ Get the runtime shared library version string.
 ```c
 SNAP_API const char* snap_version(void);
 ```
-**Return value**: Static null-terminated version string (`"2.1.2"`). Do **not** pass to `snap_free()`.
+**Return value**: Static null-terminated version string (`"2.1.3"`). Do **not** pass to `snap_free()`.
 
 ---
 
@@ -601,7 +601,7 @@ Get the active language model index version string for `"ko"`, `"ja"`, or `"en"`
 ```c
 SNAP_API const char* snap_engine_version(const char* lang);
 ```
-**Return value**: Static null-terminated engine version string (e.g., `"2.1.2"`). Do **not** pass to `snap_free()`.
+**Return value**: Static null-terminated engine version string (e.g., `"2.1.3"`). Do **not** pass to `snap_free()`.
 
 ---
 
@@ -612,7 +612,7 @@ Get runtime numeric version value for version comparison.
 ```c
 SNAP_API int snap_version_number(void);
 ```
-**Return value**: Integer version (`20102` for `2.1.2`).
+**Return value**: Integer version (`20103` for `2.1.3`).
 
 ---
 

@@ -1,4 +1,4 @@
-# SNAP C/C++ Native SDK API 레퍼런스 매뉴얼 (`v2.1.2`)
+# SNAP C/C++ Native SDK API 레퍼런스 매뉴얼 (`v2.1.3`)
 
 > **📌 문서 구분 안내**  
 > * **본 문서 (`SNAP_SDK_API_MANUAL_KO.md`):** C/C++ 네이티브 바이너리 SDK(단일 헤더, DLL/SO, `.spak` 암호화 에셋 컨테이너, 메모리 관리) 연동 규격서입니다.  
@@ -13,13 +13,13 @@
 
 ## 1. 개요
 
-`snap_cpp`(`v2.1.2`)는 **불투명 핸들(Opaque Handle)** 기반의 순수 C ABI(`extern "C"`) 라이브러리이며, **100% 인메모리 `.spak` 복호화(Zero-Disk)**를 지원합니다.  
+`snap_cpp`(`v2.1.3`)는 **불투명 핸들(Opaque Handle)** 기반의 순수 C ABI(`extern "C"`) 라이브러리이며, **100% 인메모리 `.spak` 복호화(Zero-Disk)**를 지원합니다.  
 `snap_create()`를 호출할 때마다 독립된 엔진 인스턴스가 생성되므로 단일 프로세스 내에서 다국어(`ko`, `ja`, `en`) 핸들을 공유 상태나 락 경합 없이 동시에 구동할 수 있습니다.
 
 ### 라이프사이클
 
 ```text
-snap_set_license()  (선택 — v2.1.2은 오프라인 기본 허용 스텁 모드)
+snap_set_license()  (선택 — v2.1.3은 오프라인 기본 허용 스텁 모드)
     │
 snap_create("packs/snap_ko.spak", "ko")  ──► NULL 반환 시: snap_get_last_error() 확인
     │
@@ -96,7 +96,7 @@ SNAP_API const char* snap_get_last_error(void);
 SNAP_API int snap_set_license(const char* license_key);
 ```
 
-- **반환값:** `0`이면 정상 승인, `0`이 아니면 거부 코드. *(참고: `v2.1.2`은 오프라인 기본 허용 스텁 모드로 동작하며 생략하거나 임의 문자열 전달 시 `0`을 반환합니다.)*
+- **반환값:** `0`이면 정상 승인, `0`이 아니면 거부 코드. *(참고: `v2.1.3`은 오프라인 기본 허용 스텁 모드로 동작하며 생략하거나 임의 문자열 전달 시 `0`을 반환합니다.)*
 
 ---
 
@@ -259,12 +259,12 @@ SNAP_API void snap_destroy(void* handle);      // 엔진 인스턴스 및 ONNX �
 #define SNAP_VERSION_MAJOR    2
 #define SNAP_VERSION_MINOR    1
 #define SNAP_VERSION_PATCH    1
-#define SNAP_VERSION_STRING   "2.1.2"
-#define SNAP_VERSION_NUMBER   20102 // (MAJOR * 10000 + MINOR * 100 + PATCH)
+#define SNAP_VERSION_STRING   "2.1.3"
+#define SNAP_VERSION_NUMBER   20103 // (MAJOR * 10000 + MINOR * 100 + PATCH)
 
-SNAP_API const char* snap_version(void);                    // "2.1.2"
-SNAP_API const char* snap_engine_version(const char* lang); // 언어 팩 모델 인덱스 버전 ("2.1.2")
-SNAP_API int         snap_version_number(void);             // 20102
+SNAP_API const char* snap_version(void);                    // "2.1.3"
+SNAP_API const char* snap_engine_version(const char* lang); // 언어 팩 모델 인덱스 버전 ("2.1.3")
+SNAP_API int         snap_version_number(void);             // 20103
 SNAP_API void        snap_version_info(int* major, int* minor, int* patch);
 SNAP_API int         snap_version_check(int major, int minor); // 호환 시 1, 불일치 시 0
 SNAP_API const char* snap_version_verbose(void);            // 플랫폼·컴파일러 포함 상세 문자열
