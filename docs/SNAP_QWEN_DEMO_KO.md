@@ -21,11 +21,11 @@
 
 ## 🎧 Demo 예제 WAV 들어보기
 
-* [🔊 뉴스 앵커 (여 · 차분 중저음)](samples/qwen_demo/01_B01_news_anchor_F.wav) · [🔊 스포츠 아나운서 (남 · 파워 바리톤)](samples/qwen_demo/02_B03_sports_caster_M.wav)
-* [🔊 쇼호스트 · 셀러 (여 · 간판 쇼호스트)](samples/qwen_demo/03_B07_show_host_F.wav) · [🔊 친절 안내원 (여 · 청아 미술도슨트)](samples/qwen_demo/04_P02_v2_concierge_F.wav)
-* [🔊 정치인 · 웅변가 (남 · 중후 원로연설)](samples/qwen_demo/05_P03_politician_M.wav) · [🔊 사랑스러운 애교녀 (여 · 달콤 꿀보이스)](samples/qwen_demo/06_L03_aegyo_girl_F.wav)
-* [🔊 유튜브 · 쇼츠 리뷰어 (남 · 텐션 테크리뷰어)](samples/qwen_demo/07_L08_shorts_reviewer_M.wav) · [🔊 느와르 보스 (남 · 쩌렁 행동대장형)](samples/qwen_demo/08_K03_v3_noir_boss_M.wav)
-* [🔊 다크 빌런 · 흑막 (남 · 서늘 중저음흑막)](samples/qwen_demo/09_F05_dark_villain_M.wav) · [🔊 발랄 꼬마 마스코트 (여 · 반짝 6세마스코트)](samples/qwen_demo/10_A06_mascot_girl_F.wav)
+* [🔊 뉴스 앵커 (여 · 차분 중저음)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/01_B01_news_anchor_F.wav) · [🔊 스포츠 아나운서 (남 · 파워 바리톤)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/02_B03_sports_caster_M.wav)
+* [🔊 쇼호스트 · 셀러 (여 · 간판 쇼호스트)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/03_B07_show_host_F.wav) · [🔊 친절 안내원 (여 · 청아 미술도슨트)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/04_P02_v2_concierge_F.wav)
+* [🔊 정치인 · 웅변가 (남 · 중후 원로연설)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/05_P03_politician_M.wav) · [🔊 사랑스러운 애교녀 (여 · 달콤 꿀보이스)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/06_L03_aegyo_girl_F.wav)
+* [🔊 유튜브 · 쇼츠 리뷰어 (남 · 텐션 테크리뷰어)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/07_L08_shorts_reviewer_M.wav) · [🔊 느와르 보스 (남 · 쩌렁 행동대장형)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/08_K03_v3_noir_boss_M.wav)
+* [🔊 다크 빌런 · 흑막 (남 · 서늘 중저음흑막)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/09_F05_dark_villain_M.wav) · [🔊 발랄 꼬마 마스코트 (여 · 반짝 6세마스코트)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/10_A06_mascot_girl_F.wav)
 
 ---
 

@@ -21,11 +21,11 @@
 
 ## 🎧 Listen to Demo Sample WAVs
 
-* [🔊 News Anchor (F · Calm Mid-Low)](samples/qwen_demo/01_B01_news_anchor_F.wav) · [🔊 Sports Caster (M · Power Baritone)](samples/qwen_demo/02_B03_sports_caster_M.wav)
-* [🔊 Show Host (F · Signature Host)](samples/qwen_demo/03_B07_show_host_F.wav) · [🔊 Concierge · Guide (F · Art Docent)](samples/qwen_demo/04_P02_v2_concierge_F.wav)
-* [🔊 Politician · Orator (M · Senior Speech)](samples/qwen_demo/05_P03_politician_M.wav) · [🔊 Lovely Aegyo Girl (F · Sweet Voice)](samples/qwen_demo/06_L03_aegyo_girl_F.wav)
-* [🔊 Shorts Reviewer (M · Tech Reviewer)](samples/qwen_demo/07_L08_shorts_reviewer_M.wav) · [🔊 Noir Boss (M · Enforcer)](samples/qwen_demo/08_K03_v3_noir_boss_M.wav)
-* [🔊 Dark Villain (M · Mastermind)](samples/qwen_demo/09_F05_dark_villain_M.wav) · [🔊 Little Mascot (F · 6yo Girl)](samples/qwen_demo/10_A06_mascot_girl_F.wav)
+* [🔊 News Anchor (F · Calm Mid-Low)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/01_B01_news_anchor_F.wav) · [🔊 Sports Caster (M · Power Baritone)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/02_B03_sports_caster_M.wav)
+* [🔊 Show Host (F · Signature Host)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/03_B07_show_host_F.wav) · [🔊 Concierge · Guide (F · Art Docent)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/04_P02_v2_concierge_F.wav)
+* [🔊 Politician · Orator (M · Senior Speech)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/05_P03_politician_M.wav) · [🔊 Lovely Aegyo Girl (F · Sweet Voice)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/06_L03_aegyo_girl_F.wav)
+* [🔊 Shorts Reviewer (M · Tech Reviewer)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/07_L08_shorts_reviewer_M.wav) · [🔊 Noir Boss (M · Enforcer)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/08_K03_v3_noir_boss_M.wav)
+* [🔊 Dark Villain (M · Mastermind)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/09_F05_dark_villain_M.wav) · [🔊 Little Mascot (F · 6yo Girl)](https://cdn.jsdelivr.net/gh/snap-libs/snap_voice@117efb6/docs/samples/qwen_demo/10_A06_mascot_girl_F.wav)
 
 ---
 
