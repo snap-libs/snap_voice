@@ -9,6 +9,7 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 
 ## 📢 What's New
 
+* **[2026.11.18] [SNAP-Qwen TTS v1.1 Live Demo Guide (Qwen3-TTS Korean LoRA)](docs/SNAP_QWEN_DEMO.md)** ([Live Demo](https://huggingface.co/spaces/softguy777/snap_voice_demo6)) — Launched live demo integrating SNAP's Qwen normalization mode (`tn_for_qwen`) with a 158-speaker Korean LoRA model of Qwen3-TTS `0.6B`.
 * **[2026.11.09] [SNAP Korean Preprocessing Engine v2.1.3 Update](docs/SNAP_UPDATE_NOTES.md)** ([한국어 업데이트 노트](docs/SNAP_UPDATE_NOTES_KO.md)) — Added preprocessing interface (`tn_for_qwen`) for Qwen-TTS support and fixed additional heteronym boundary & numeral reading bugs.
 * **[2026.11.04] [SNAP Korean Preprocessing Engine v2.1.2 Update](docs/SNAP_UPDATE_NOTES.md)** ([한국어 업데이트 노트](docs/SNAP_UPDATE_NOTES_KO.md)) — Added 20 context-dependent heteronyms (`-가(價)` & `-권(券·圈·權·拳)`), reinforced pronunciation & loanword edge cases, and updated SNAP SDK to support diverse applications.
 
@@ -18,6 +19,7 @@ Building upon the multilingual (Korean, Japanese, English) v1.0 research foundat
 
 ### 🚀 SNAP v2.0 (Korean)
 * 📥 **SNAP v2.0 Overview Presentation (PDF)**: [Korean](docs/SNAP_v2.0_Overview_KO.pdf) | [English](docs/SNAP_v2.0_Overview_EN.pdf)
+* 🎮 **[SNAP v2.0 Real-time TTS Demo: SNAP-Qwen TTS Integration Demo (Korean LoRA · 158 Voices)](https://huggingface.co/spaces/softguy777/snap_voice_demo6)** ([Demo Guide](docs/SNAP_QWEN_DEMO.md))
 * 🎮 **[SNAP v2.0 Real-time TTS Demo: SNAP-Edge-tts 연동 demo](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**
 * 🎮 **[SNAP v2.0 Real-time TTS Demo: SNAP-piper tts 연동 demo](https://huggingface.co/spaces/softguy777/snap_voice_demo2)**
 * 📑 **[SNAP v2.0 Korean Technical White Paper](docs/SNAP_White_Paper_v2.0.md)**: Distilled Mini BERT backbone, high-performance C++ native optimizations, and latency benchmarks
@@ -53,6 +55,9 @@ In SNAP v2.0, REST API communication is the standard integration paradigm, suppo
 3. **SNAP SDK Direct Linkage**: Ultra-low-latency direct linking via SNAP C++ Shared Libraries (`.so`, `.dll`).
 
 The following are real-world integration examples connecting SNAP with major TTS architectures:
+* **Qwen3-TTS (`0.6B` Korean LoRA)**: Added a dedicated normalization mode (`tn_for_qwen`) suited for TN-trained Qwen3-TTS along with pronunciation calibration for unlearned/missing Korean syllables, integrated with a 158-speaker Korean LoRA model.
+  - 🎮 **Interactive Demo**: [SNAP + Qwen3-TTS Korean LoRA (Hugging Face ZeroGPU)](https://huggingface.co/spaces/softguy777/snap_voice_demo6)
+  - 📑 **Demo & Technical Guide**: [SNAP-Qwen TTS Demo Overview](docs/SNAP_QWEN_DEMO.md)
 * **Cloud TTS (Edge-TTS)**: While Edge-TTS handles raw Korean text reasonably well, integrating SNAP as a frontend provides precision contextual numeral readings, heteronym disambiguation, and dynamic custom dictionaries (`custom_dict`), substantially elevating overall pronunciation quality.
   - 🎮 **Interactive Demo**: [SNAP + Edge-TTS (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo4)
   - 📑 **Technical Note**: [Architecture & Benchmark Discussion](https://huggingface.co/spaces/softguy777/snap_voice_demo4/discussions/1)

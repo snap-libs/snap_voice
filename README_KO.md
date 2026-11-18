@@ -9,6 +9,7 @@ SNAP은 문맥 인지형 실시간 음성 전처리(TTS Frontend & ITN) 엔진�
 
 ## 📢 새 소식 (What's New)
 
+* **[2026.11.18] [SNAP-Qwen TTS v1.1 실시간 데모 안내 (Qwen3-TTS 한국어 LoRA)](docs/SNAP_QWEN_DEMO_KO.md)** ([실시간 데모](https://huggingface.co/spaces/softguy777/snap_voice_demo6)) — SNAP의 Qwen 전용 정규화 모드(`tn_for_qwen`)와 한국인 화자 158종을 추가 학습한 Qwen3-TTS `0.6B` 한국어 LoRA 모델 연동 실시간 데모 공개.
 * **[2026.11.09] [SNAP 한국어 전처리 엔진 v2.1.3 업데이트 안내](docs/SNAP_UPDATE_NOTES_KO.md)** ([English](docs/SNAP_UPDATE_NOTES.md)) — Qwen-TTS 지원을 위한 전처리 인터페이스(`tn_for_qwen`) 추가 및 동철이음어 경계·수사 읽기 등 일부 추가 버그 수정.
 * **[2026.11.04] [SNAP 한국어 전처리 엔진 v2.1.2 업데이트 안내](docs/SNAP_UPDATE_NOTES_KO.md)** ([English](docs/SNAP_UPDATE_NOTES.md)) — `-가(價)`·`-권(券·圈·權·拳)` 동철이음이의어 20종 신규 확장, 표준 발음법·외래어 세부 예외 보강 및 다양한 애플리케이션 지원을 위한 SNAP SDK 업데이트.
 
@@ -18,6 +19,7 @@ SNAP은 문맥 인지형 실시간 음성 전처리(TTS Frontend & ITN) 엔진�
 
 ### 🚀 SNAP v2.0 (한국어)
 * 📥 **SNAP v2.0 소개서 다운로드 (PDF)**: [한국어](docs/SNAP_v2.0_Overview_KO.pdf) | [영어](docs/SNAP_v2.0_Overview_EN.pdf)
+* 🎮 **[SNAP v2.0 실시간 TTS 데모: SNAP-Qwen TTS 연동 데모 (한국어 LoRA · 158 화자)](https://huggingface.co/spaces/softguy777/snap_voice_demo6)** ([소개 문서](docs/SNAP_QWEN_DEMO_KO.md))
 * 🎮 **[SNAP v2.0 실시간 TTS 데모: SNAP-Edge-tts 연동 데모](https://huggingface.co/spaces/softguy777/snap_voice_demo4)**
 * 🎮 **[SNAP v2.0 실시간 TTS 데모: SNAP-piper tts 연동 데모](https://huggingface.co/spaces/softguy777/snap_voice_demo2)**
 * 📑 **[SNAP v2.0 한국어 기술문서](docs/SNAP_White_Paper_v2.0_KO.md)**: Distilled Mini BERT 백본, 고성능 C++ 네이티브 최적화 및 벤치마크
@@ -53,6 +55,9 @@ SNAP v2.0에서는 REST API를 사용하여 연동하는 것이 표준이며, �
 3. **SNAP SDK를 이용한 연동**: SNAP C++ Shared Library를 통한 직접 링크 연동 (온프레미스 환경용)
 
 다음은 SNAP API 서버와 주요 TTS 모델들과의 연동 사례입니다.
+* **Qwen3-TTS (`0.6B` 한국어 LoRA)**: 발음열(G2P)이 아닌 일반 텍스트 정규화(TN)로 학습된 Qwen3-TTS의 특성에 맞춰 전용 정규화 모드(`tn_for_qwen`)를 추가하고 미학습·누락 음절 발음을 보정했으며, 한국인 화자 158종을 추가 학습한 LoRA 모델과 연동했습니다.
+  - 🎮 **실시간 데모**: [SNAP + Qwen3-TTS 한국어 LoRA 데모 (Hugging Face ZeroGPU)](https://huggingface.co/spaces/softguy777/snap_voice_demo6)
+  - 📑 **소개 및 기술 문서**: [SNAP-Qwen TTS 데모 상세 안내](docs/SNAP_QWEN_DEMO_KO.md)
 * **클라우드 TTS (Edge-TTS)**: Edge-TTS는 일반 텍스트 원문만으로도 어느 정도 수준의 발음을 합성하지만, SNAP을 전처리기로 연동하면 문맥에 따른 수사·단위 변별, 동철이음어 구분, 사용자 정의 사전(`custom_dict`) 등 SNAP의 정밀한 의미 분석 기능이 더해져 훨씬 더 정확하고 완성도 높은 발음을 구현합니다.
   - 🎮 **실시간 데모**: [SNAP + Edge-TTS 데모 (Hugging Face)](https://huggingface.co/spaces/softguy777/snap_voice_demo4)
   - 📑 **기술 문서**: [아키텍처 및 벤치마크 토론글](https://huggingface.co/spaces/softguy777/snap_voice_demo4/discussions/1)
